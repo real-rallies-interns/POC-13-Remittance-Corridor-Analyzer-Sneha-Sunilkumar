@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Remittance Corridor Analyzer is a production-style intelligence dashboard that maps and analyzes **7 major remittance corridors** covering **$179B+ in annual cross-border flows**. It integrates live data from the World Bank Remittance Prices API and ECB Data Portal, with a clean dark UI built on the Real Rails DNA design system.
+The Remittance Corridor Analyzer is a production-style intelligence dashboard that maps and analyzes **15 major remittance corridors** covering **$240B+ in annual cross-border flows**. It integrates live data from the World Bank Remittance Prices API and ECB Data Portal, with a clean dark UI built on the Real Rails DNA design system.
 
 The dashboard exposes:
 - **Where money flows** — interactive Leaflet world map with corridor arcs
@@ -33,13 +33,21 @@ API Docs → http://localhost:8000/docs
 
 | Corridor | Volume/yr | Avg Cost | Formal | Informal |
 |---|---|---|---|---|
-| USA → Mexico | $61.1B | 3.1% | 74% | 26% |
-| USA → India | $32.7B | 2.4% ✅ | 91% | 9% |
-| UAE → India | $20.1B | 4.2% | 78% | 22% |
-| UK → Nigeria | $21.3B | 4.8% | 61% | 39% |
-| UAE → Pakistan | $18.5B | 5.2% ⚠️ | 55% | 45% |
-| EU → Philippines | $14.9B | 3.7% | 82% | 18% |
-| USA → Philippines | $11.2B | 3.3% | 86% | 14% |
+| USA --> Mexico | $61.1B | 3.1% | 74% | 26% |
+| USA --> India | $32.7B | 2.4% ✅ | 91% | 9% |
+| UK --> Nigeria | $21.3B | 4.8% | 61% | 39% |
+| UAE --> India | $20.1B | 4.2% | 78% | 22% |
+| UAE --> Pakistan | $18.5B | 5.2% ⚠️ | 55% | 45% |
+| USA --> China | $16.4B | 6.1% ⚠️ | 88% | 12% |
+| EU --> Philippines | $14.9B | 3.7% | 82% | 18% |
+| USA --> Philippines | $11.2B | 3.3% | 86% | 14% |
+| France --> Morocco | $9.8B | 4.1% | 72% | 28% |
+| USA --> Dominican Republic | $8.2B | 3.5% | 80% | 20% |
+| UK --> India | $7.6B | 2.8% ✅ | 93% | 7% |
+| Canada --> India | $6.9B | 2.6% ✅ | 94% | 6% |
+| Australia --> India | $5.4B | 3.0% | 92% | 8% |
+| Italy --> Romania | $4.8B | 2.2% ✅ | 95% | 5% |
+| Spain --> Ecuador | $4.2B | 4.5% | 69% | 31% |
 
 > ⚠️ Above G20 5% cost target &nbsp;&nbsp; ✅ G20 compliant
 
@@ -76,7 +84,7 @@ API Docs → http://localhost:8000/docs
 ### Data Sources
 | Source | Type | Usage |
 |---|---|---|
-| World Bank Remittance Prices API | Live | Corridor cost data |
+| World Bank Remittance Prices API | Live | Corridor cost data (15 pairs) |
 | ECB Data Portal | Live | FX rates (EUR pairs) |
 | Synthetic Unit Economics | Mock | Transaction-level samples |
 
@@ -88,7 +96,7 @@ API Docs → http://localhost:8000/docs
 remittance-corridor-analyzer/
 ├── backend/
 │   ├── main.py              # FastAPI app — all API routes
-│   ├── mock_data.json       # Fallback data (corridors, providers, governance)
+│   ├── mock_data.json       # Fallback data (15 corridors, 46 providers, governance)
 │   ├── requirements.txt     # Python dependencies
 │   └── .env                 # Environment variables
 │
@@ -106,7 +114,7 @@ remittance-corridor-analyzer/
     │   ├── lib/
     │   │   └── api.ts           # Data adapters with 3-tier fallback
     │   ├── data/
-    │   │   └── mock_data.json   # Frontend fallback data
+    │   │   └── mock_data.json   # Frontend fallback data (15 corridors)
     │   └── types/
     │       └── index.ts         # TypeScript type definitions
     ├── tailwind.config.js       # Real Rails DNA colour tokens
@@ -190,7 +198,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 1. Frontend calls FastAPI backend
          ↓
-2. Backend tries World Bank Live API → real remittance cost data
+2. Backend tries World Bank Live API → real remittance cost data (15 pairs)
          ↓
 3. Backend tries ECB API → real FX rates
          ↓
@@ -210,7 +218,7 @@ The header badge shows **LIVE** (green) or **MOCK** (amber) so users always know
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/health` | Health check + project metadata |
-| GET | `/api/corridors` | All corridor data (World Bank enriched) |
+| GET | `/api/corridors` | All 15 corridor data (World Bank enriched) |
 | GET | `/api/corridors/geojson` | GeoJSON for mapping |
 | GET | `/api/timeline` | Monthly volume time series |
 | GET | `/api/cost-analysis` | Provider fee breakdown by corridor |
@@ -225,12 +233,13 @@ The header badge shows **LIVE** (green) or **MOCK** (amber) so users always know
 
 ### 🗺️ Interactive Corridor Map
 - Dark CartoDB basemap via Leaflet
-- Corridor arcs with cyan highlight on selection
+- 15 corridor arcs with cyan highlight on selection
 - Click to select — sidebar updates automatically
 - Tooltip with cost %, volume, speed per corridor
 
 ### 📊 Provider Benchmarking
-- 3–4 providers per corridor (corridor-specific, not global)
+- 3 providers per corridor (corridor-specific, not global)
+- 46 total provider entries across 15 corridors
 - Sorted cheapest → most expensive
 - Cyan bars = below average, Indigo bars = above average
 - Average reference line
@@ -280,8 +289,9 @@ Built on the **Real Rails DNA**:
 
 | Document | Result |
 |---|---|
-| VAR (Visualization Audit Report) | ✅ 28/28 PASS |
-| UAT (User Acceptance Testing) | ✅ 50/50 test cases |
+| VAR (Visualization Audit Report) | ✅ 28/28 PASS — v3.1 |
+| UAT (User Acceptance Testing) | ✅ 50 test cases — v3.1 |
+| Corridors | ✅ 15 country pairs |
 | DNA Compliance | ✅ Full Real Rails DNA |
 | Data Attribution | ✅ World Bank + ECB labeled |
 
@@ -289,7 +299,7 @@ Built on the **Real Rails DNA**:
 
 ## Data Attribution
 
-- **World Bank Remittance Prices Worldwide** — corridor cost data
+- **World Bank Remittance Prices Worldwide** — corridor cost data (15 pairs)
 - **ECB Data Portal** — FX rates (EUR pairs)
 - **Synthetic Unit Economics** — transaction-level samples (clearly labeled, not real data)
 - **ILO Minimum Wage Estimates** — human cost calculator
@@ -300,4 +310,4 @@ Built on the **Real Rails DNA**:
 ## License
 
 MIT — Real Rails Intelligence Library  
-PoC ID 13 · Payment Rail · Temporal Archetype · Episode + LinkedIn Format
+PoC ID 13 · Payment Rail · Temporal Archetype · Episode + LinkedIn Format · 15 Corridors
