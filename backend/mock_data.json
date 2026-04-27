@@ -2,7 +2,7 @@
   "corridors": [
     {
       "id": "US-MX",
-      "label": "USA \u2192 Mexico",
+      "label": "USA --> Mexico",
       "from_name": "United States",
       "from_lat": 37.09,
       "from_lng": -95.71,
@@ -18,7 +18,7 @@
     },
     {
       "id": "US-IN",
-      "label": "USA \u2192 India",
+      "label": "USA --> India",
       "from_name": "United States",
       "from_lat": 37.09,
       "from_lng": -95.71,
@@ -34,7 +34,7 @@
     },
     {
       "id": "UK-NG",
-      "label": "UK \u2192 Nigeria",
+      "label": "UK --> Nigeria",
       "from_name": "United Kingdom",
       "from_lat": 55.37,
       "from_lng": -3.43,
@@ -50,7 +50,7 @@
     },
     {
       "id": "EU-PH",
-      "label": "EU \u2192 Philippines",
+      "label": "EU --> Philippines",
       "from_name": "Eurozone",
       "from_lat": 50.85,
       "from_lng": 4.35,
@@ -66,7 +66,7 @@
     },
     {
       "id": "UAE-PK",
-      "label": "UAE \u2192 Pakistan",
+      "label": "UAE --> Pakistan",
       "from_name": "UAE",
       "from_lat": 23.42,
       "from_lng": 53.84,
@@ -82,7 +82,7 @@
     },
     {
       "id": "US-PH",
-      "label": "USA \u2192 Philippines",
+      "label": "USA --> Philippines",
       "from_name": "United States",
       "from_lat": 37.09,
       "from_lng": -95.71,
@@ -98,7 +98,7 @@
     },
     {
       "id": "UAE-IN",
-      "label": "UAE \u2192 India",
+      "label": "UAE --> India",
       "from_name": "UAE",
       "from_lat": 23.42,
       "from_lng": 53.84,
@@ -111,37 +111,597 @@
       "primary_provider": "Wise",
       "formal": 0.78,
       "informal": 0.22
+    },
+    {
+      "id": "US-CN",
+      "label": "USA --> China",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "China",
+      "to_lat": 35.86,
+      "to_lng": 104.19,
+      "volume_bn_usd": 16.4,
+      "avg_cost_pct": 6.1,
+      "trend": "down",
+      "primary_provider": "Western Union",
+      "formal": 0.88,
+      "informal": 0.12
+    },
+    {
+      "id": "FR-MA",
+      "label": "France --> Morocco",
+      "from_name": "France",
+      "from_lat": 46.23,
+      "from_lng": 2.21,
+      "to_name": "Morocco",
+      "to_lat": 31.79,
+      "to_lng": -7.09,
+      "volume_bn_usd": 9.8,
+      "avg_cost_pct": 4.1,
+      "trend": "flat",
+      "primary_provider": "WorldRemit",
+      "formal": 0.72,
+      "informal": 0.28
+    },
+    {
+      "id": "US-DO",
+      "label": "USA --> Dominican Republic",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Dominican Republic",
+      "to_lat": 18.73,
+      "to_lng": -70.16,
+      "volume_bn_usd": 8.2,
+      "avg_cost_pct": 3.5,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.8,
+      "informal": 0.2
+    },
+    {
+      "id": "UK-IN",
+      "label": "UK --> India",
+      "from_name": "United Kingdom",
+      "from_lat": 55.37,
+      "from_lng": -3.43,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 7.6,
+      "avg_cost_pct": 2.8,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.93,
+      "informal": 0.07
+    },
+    {
+      "id": "CA-IN",
+      "label": "Canada --> India",
+      "from_name": "Canada",
+      "from_lat": 56.13,
+      "from_lng": -106.34,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 6.9,
+      "avg_cost_pct": 2.6,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.94,
+      "informal": 0.06
+    },
+    {
+      "id": "AU-IN",
+      "label": "Australia --> India",
+      "from_name": "Australia",
+      "from_lat": -25.27,
+      "from_lng": 133.77,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 5.4,
+      "avg_cost_pct": 3.0,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.92,
+      "informal": 0.08
+    },
+    {
+      "id": "IT-RO",
+      "label": "Italy --> Romania",
+      "from_name": "Italy",
+      "from_lat": 41.87,
+      "from_lng": 12.56,
+      "to_name": "Romania",
+      "to_lat": 45.94,
+      "to_lng": 24.96,
+      "volume_bn_usd": 4.8,
+      "avg_cost_pct": 2.2,
+      "trend": "flat",
+      "primary_provider": "Wise",
+      "formal": 0.95,
+      "informal": 0.05
+    },
+    {
+      "id": "ES-EC",
+      "label": "Spain --> Ecuador",
+      "from_name": "Spain",
+      "from_lat": 40.46,
+      "from_lng": -3.74,
+      "to_name": "Ecuador",
+      "to_lat": -1.83,
+      "to_lng": -78.18,
+      "volume_bn_usd": 4.2,
+      "avg_cost_pct": 4.5,
+      "trend": "up",
+      "primary_provider": "Western Union",
+      "formal": 0.69,
+      "informal": 0.31
     }
   ],
   "providers": [
-    { "corridor_id": "US-MX", "id": "remitly",    "name": "Remitly",       "type": "Fintech",     "fee_pct": 0.80, "fee_flat": 1.99, "speed_hrs": 4,  "rating": 4.6 },
-    { "corridor_id": "US-MX", "id": "wise",        "name": "Wise",          "type": "Fintech",     "fee_pct": 0.45, "fee_flat": 0.50, "speed_hrs": 2,  "rating": 4.8 },
-    { "corridor_id": "US-MX", "id": "wu",          "name": "Western Union", "type": "Traditional", "fee_pct": 1.20, "fee_flat": 4.99, "speed_hrs": 24, "rating": 3.9 },
-    { "corridor_id": "US-MX", "id": "xoom",        "name": "Xoom (PayPal)", "type": "Fintech",     "fee_pct": 0.90, "fee_flat": 2.99, "speed_hrs": 8,  "rating": 4.2 },
-
-    { "corridor_id": "US-IN", "id": "wise",        "name": "Wise",          "type": "Fintech",     "fee_pct": 0.35, "fee_flat": 0.50, "speed_hrs": 2,  "rating": 4.8 },
-    { "corridor_id": "US-IN", "id": "remitly",     "name": "Remitly",       "type": "Fintech",     "fee_pct": 0.70, "fee_flat": 1.49, "speed_hrs": 3,  "rating": 4.6 },
-    { "corridor_id": "US-IN", "id": "xoom",        "name": "Xoom (PayPal)", "type": "Fintech",     "fee_pct": 1.00, "fee_flat": 2.49, "speed_hrs": 6,  "rating": 4.2 },
-
-    { "corridor_id": "UK-NG", "id": "worldremit",  "name": "WorldRemit",    "type": "Fintech",     "fee_pct": 0.65, "fee_flat": 2.49, "speed_hrs": 6,  "rating": 4.4 },
-    { "corridor_id": "UK-NG", "id": "wu",          "name": "Western Union", "type": "Traditional", "fee_pct": 1.50, "fee_flat": 5.99, "speed_hrs": 24, "rating": 3.9 },
-    { "corridor_id": "UK-NG", "id": "remitly",     "name": "Remitly",       "type": "Fintech",     "fee_pct": 0.90, "fee_flat": 2.99, "speed_hrs": 5,  "rating": 4.5 },
-
-    { "corridor_id": "EU-PH", "id": "wu",          "name": "Western Union", "type": "Traditional", "fee_pct": 1.20, "fee_flat": 4.99, "speed_hrs": 24, "rating": 3.9 },
-    { "corridor_id": "EU-PH", "id": "wise",        "name": "Wise",          "type": "Fintech",     "fee_pct": 0.45, "fee_flat": 0.50, "speed_hrs": 2,  "rating": 4.8 },
-    { "corridor_id": "EU-PH", "id": "worldremit",  "name": "WorldRemit",    "type": "Fintech",     "fee_pct": 0.70, "fee_flat": 2.49, "speed_hrs": 6,  "rating": 4.4 },
-
-    { "corridor_id": "UAE-PK", "id": "moneygram",  "name": "MoneyGram",     "type": "Traditional", "fee_pct": 1.50, "fee_flat": 3.99, "speed_hrs": 12, "rating": 3.7 },
-    { "corridor_id": "UAE-PK", "id": "wu",         "name": "Western Union", "type": "Traditional", "fee_pct": 1.80, "fee_flat": 5.99, "speed_hrs": 24, "rating": 3.9 },
-    { "corridor_id": "UAE-PK", "id": "wise",       "name": "Wise",          "type": "Fintech",     "fee_pct": 0.55, "fee_flat": 1.00, "speed_hrs": 3,  "rating": 4.8 },
-
-    { "corridor_id": "US-PH", "id": "remitly",     "name": "Remitly",       "type": "Fintech",     "fee_pct": 0.75, "fee_flat": 1.99, "speed_hrs": 4,  "rating": 4.6 },
-    { "corridor_id": "US-PH", "id": "xoom",        "name": "Xoom (PayPal)", "type": "Fintech",     "fee_pct": 0.85, "fee_flat": 2.49, "speed_hrs": 6,  "rating": 4.3 },
-    { "corridor_id": "US-PH", "id": "wu",          "name": "Western Union", "type": "Traditional", "fee_pct": 1.30, "fee_flat": 4.99, "speed_hrs": 24, "rating": 3.9 },
-
-    { "corridor_id": "UAE-IN", "id": "wise",       "name": "Wise",          "type": "Fintech",     "fee_pct": 0.40, "fee_flat": 0.50, "speed_hrs": 2,  "rating": 4.8 },
-    { "corridor_id": "UAE-IN", "id": "moneygram",  "name": "MoneyGram",     "type": "Traditional", "fee_pct": 1.40, "fee_flat": 3.49, "speed_hrs": 12, "rating": 3.7 },
-    { "corridor_id": "UAE-IN", "id": "remitly",    "name": "Remitly",       "type": "Fintech",     "fee_pct": 0.80, "fee_flat": 1.99, "speed_hrs": 4,  "rating": 4.6 }
+    {
+      "corridor_id": "US-MX",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.0,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 5,
+      "rating": 4.5
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 3,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.3
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 3.49,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.1,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.3,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.1,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.25,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.6,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.0,
+      "fee_flat": 3.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.5,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    }
   ],
   "governance": {
     "regulators": [

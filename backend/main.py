@@ -83,9 +83,12 @@ async def fetch_worldbank_remittance_costs() -> list:
     Falls back to mock on any error.
     """
     country_pairs = [
-        ("US", "MX"), ("US", "IN"), ("GB", "NG"),
-        ("DE", "PH"), ("AE", "PK"), ("US", "PH"),
-    ]
+    ("US", "MX"), ("US", "IN"), ("GB", "NG"),
+    ("DE", "PH"), ("AE", "PK"), ("US", "PH"),
+    ("AE", "IN"), ("US", "CN"), ("FR", "MA"),
+    ("US", "DO"), ("GB", "IN"), ("CA", "IN"),
+    ("AU", "IN"), ("IT", "RO"), ("ES", "EC"),
+]
     results = []
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
