@@ -26,8 +26,13 @@ from dotenv import load_dotenv
 import httpx
 import pandas as pd
 import numpy as np
-import geopandas as gpd
-from shapely.geometry import LineString
+try:
+    import geopandas as gpd
+    from shapely.geometry import LineString
+    HAS_GEO = True
+except ImportError:
+    HAS_GEO = False
+    gpd = None
 import json, random, io, os, logging
 from typing import Optional
 
@@ -220,6 +225,8 @@ def build_synthetic_timeline(corridor_id=None):
 # ════════════════════════════════════════════════════════════
 
 def build_geodataframe():
+    if not HAS_GEO:
+        return None
     records = []
     for c in MOCK_CORRIDORS:
         records.append({
