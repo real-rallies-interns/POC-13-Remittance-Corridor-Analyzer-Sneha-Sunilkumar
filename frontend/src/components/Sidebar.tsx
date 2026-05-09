@@ -4,17 +4,32 @@
  * Section A: Title & High-level Metric
  * Section B: Why This Matters
  * Section C: Who Controls the Rail
- * Section D: Functional Filters & Tooltips
+ * Section D: Functional Filters & Analysis (5 tabs)
+ *   - Timeline       (Volume Flow Tracker)
+ *   - Providers      (Player Breakdown)
+ *   - FX Margin      (FX Margin Visualizer)
+ *   - Cost/Income    (Cost vs Income Overlay)
+ *   - Channels       (Formal vs Informal)
  * Section E: Download Sample Data
  */
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import type { Corridor, Provider, TimelineRow, ChannelRow, GovernanceData } from '@/types'
-import { getTimeline, getCostAnalysis, getChannelComparison, getGovernance } from '@/lib/api'
-import { Info, Shield, SlidersHorizontal, Download, Zap, Globe, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle } from 'lucide-react'
+import {
+  getTimeline, getCostAnalysis, getChannelComparison,
+  getGovernance, getPlayerBreakdown, getFXMargin, getVolumeFlow
+} from '@/lib/api'
+import {
+  Info, Shield, SlidersHorizontal, Download, Zap,
+  Globe, TrendingUp, TrendingDown, Minus,
+  AlertTriangle, CheckCircle, BarChart2, DollarSign
+} from 'lucide-react'
 
-const TimelineChart = dynamic(() => import('./TimelineChart'), { ssr: false })
-const ProviderChart = dynamic(() => import('./ProviderChart'), { ssr: false })
+const TimelineChart      = dynamic(() => import('./TimelineChart'),      { ssr: false })
+const ProviderChart      = dynamic(() => import('./ProviderChart'),       { ssr: false })
+const FXMarginChart      = dynamic(() => import('./FXMarginChart'),       { ssr: false })
+const PlayerBreakdownChart = dynamic(() => import('./PlayerBreakdownChart'), { ssr: false })
+const VolumeFlowChart    = dynamic(() => import('./VolumeFlowChart'),     { ssr: false })
 
 interface Props {
   corridor:           Corridor | undefined
@@ -24,25 +39,31 @@ interface Props {
   onSendAmountChange: (v: number) => void
 }
 
-// ── Human Cost Calculator ─────────────────────────────────────────────────
-// Minimum wage data (USD/hr, 2024 estimates) for receiving countries
-// Sources: ILO, World Bank labor stats — labeled as estimates
-const RECEIVING_COUNTRY_WAGES: Record<string, { hourlyUSD: number; label: string; currency: string }> = {
-  'US-MX':  { hourlyUSD: 0.93,  label: 'Mexico',      currency: 'MXN' },
-  'US-IN':  { hourlyUSD: 0.28,  label: 'India',        currency: 'INR' },
-  'UK-NG':  { hourlyUSD: 0.21,  label: 'Nigeria',      currency: 'NGN' },
-  'EU-PH':  { hourlyUSD: 0.95,  label: 'Philippines',  currency: 'PHP' },
-  'UAE-PK': { hourlyUSD: 0.18,  label: 'Pakistan',     currency: 'PKR' },
-  'US-PH':  { hourlyUSD: 0.95,  label: 'Philippines',  currency: 'PHP' },
-  'UAE-IN': { hourlyUSD: 0.28,  label: 'India (Kerala)', currency: 'INR' },
+// ── Human Cost Calculator ─────────────────────────────────────────────────────
+const RECEIVING_COUNTRY_WAGES: Record<string, { hourlyUSD: number; label: string }> = {
+  'US-MX':  { hourlyUSD: 0.93,  label: 'Mexico'          },
+  'US-IN':  { hourlyUSD: 0.28,  label: 'India'           },
+  'UK-NG':  { hourlyUSD: 0.21,  label: 'Nigeria'         },
+  'EU-PH':  { hourlyUSD: 0.95,  label: 'Philippines'     },
+  'UAE-PK': { hourlyUSD: 0.18,  label: 'Pakistan'        },
+  'US-PH':  { hourlyUSD: 0.95,  label: 'Philippines'     },
+  'UAE-IN': { hourlyUSD: 0.28,  label: 'India (Kerala)'  },
+  'US-CN':  { hourlyUSD: 1.20,  label: 'China'           },
+  'FR-MA':  { hourlyUSD: 0.45,  label: 'Morocco'         },
+  'US-DO':  { hourlyUSD: 0.80,  label: 'Dominican Rep.'  },
+  'UK-IN':  { hourlyUSD: 0.28,  label: 'India'           },
+  'CA-IN':  { hourlyUSD: 0.28,  label: 'India'           },
+  'AU-IN':  { hourlyUSD: 0.28,  label: 'India'           },
+  'IT-RO':  { hourlyUSD: 1.50,  label: 'Romania'         },
+  'ES-EC':  { hourlyUSD: 0.55,  label: 'Ecuador'         },
 }
 
 function calcHumanCost(corridorId: string, feeUSD: number): string | null {
   const w = RECEIVING_COUNTRY_WAGES[corridorId]
   if (!w || !feeUSD || feeUSD <= 0) return null
   const hours = feeUSD / w.hourlyUSD
-  if (hours < 1)   return `This fee = ${Math.round(hours * 60)} mins of work at ${w.label} min. wage`
-  if (hours < 8)   return `This fee = ${hours.toFixed(1)} hrs of work at ${w.label} min. wage`
+  if (hours < 1)  return `This fee = ${Math.round(hours * 60)} mins of work at ${w.label} min. wage`
+  if (hours < 8)  return `This fee = ${hours.toFixed(1)} hrs of work at ${w.label} min. wage`
   const days = hours / 8
   return `This fee = ${days.toFixed(1)} day${days >= 2 ? 's' : ''} of work at ${w.label} min. wage`
 }
@@ -53,17 +74,25 @@ const TREND_ICON = {
   flat: <Minus        className="w-3.5 h-3.5 text-rr-muted" />,
 }
 
-export default function Sidebar({ corridor, channel, sendAmount, onChannelChange, onSendAmountChange }: Props) {
-  const [timeline,   setTimeline]   = useState<TimelineRow[]>([])
-  const [providers,  setProviders]  = useState<Provider[]>([])
-  const [channels,   setChannels]   = useState<ChannelRow[]>([])
-  const [governance, setGovernance] = useState<GovernanceData | null>(null)
-  const [tab,        setTab]        = useState<'timeline' | 'providers' | 'channels'>('timeline')
+type TabType = 'timeline' | 'providers' | 'fxmargin' | 'costincome' | 'channels'
 
-  useEffect(() => { getTimeline(corridor?.id).then(setTimeline) },         [corridor?.id])
-  useEffect(() => { getCostAnalysis(sendAmount, corridor?.id).then(setProviders) }, [sendAmount, corridor?.id])
-  useEffect(() => { getChannelComparison(corridor?.id).then(setChannels) }, [corridor?.id])
-  useEffect(() => { getGovernance().then(setGovernance) },                  [])
+export default function Sidebar({ corridor, channel, sendAmount, onChannelChange, onSendAmountChange }: Props) {
+  const [timeline,        setTimeline]        = useState<TimelineRow[]>([])
+  const [providers,       setProviders]       = useState<Provider[]>([])
+  const [channels,        setChannels]        = useState<ChannelRow[]>([])
+  const [governance,      setGovernance]      = useState<GovernanceData | null>(null)
+  const [playerData,      setPlayerData]      = useState<any>(null)
+  const [fxData,          setFxData]          = useState<any[]>([])
+  const [volumeFlow,      setVolumeFlow]      = useState<any>(null)
+  const [tab,             setTab]             = useState<TabType>('timeline')
+
+  useEffect(() => { getTimeline(corridor?.id).then(setTimeline) },                        [corridor?.id])
+  useEffect(() => { getCostAnalysis(sendAmount, corridor?.id).then(setProviders) },        [sendAmount, corridor?.id])
+  useEffect(() => { getChannelComparison(corridor?.id).then(setChannels) },               [corridor?.id])
+  useEffect(() => { getGovernance().then(setGovernance) },                                 [])
+  useEffect(() => { getPlayerBreakdown(corridor?.id).then(setPlayerData) },               [corridor?.id])
+  useEffect(() => { getFXMargin(sendAmount, corridor?.id).then(setFxData) },              [sendAmount, corridor?.id])
+  useEffect(() => { getVolumeFlow().then(setVolumeFlow) },                                [])
 
   const handleDownload = () => {
     const a = document.createElement('a')
@@ -72,7 +101,6 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
     a.click()
   }
 
-  // ── Empty state ──────────────────────────────────────────────────────────
   if (!corridor) {
     return (
       <div className="glass h-full flex flex-col items-center justify-center gap-3 text-rr-muted">
@@ -88,6 +116,14 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
   const best        = [...providers].sort((a, b) => (a.fee_usd ?? 99) - (b.fee_usd ?? 99))[0]
   const channelRow  = channels.find(c => c.corridor_id === corridor.id)
 
+  const tabs: { key: TabType; label: string }[] = [
+    { key: 'timeline',  label: 'Volume'    },
+    { key: 'providers', label: 'Players'   },
+    { key: 'fxmargin',  label: 'FX Margin' },
+    { key: 'costincome',label: 'Cost/Income'},
+    { key: 'channels',  label: 'Channels'  },
+  ]
+
   return (
     <div className="glass h-full overflow-y-auto flex flex-col text-sm">
 
@@ -102,11 +138,10 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
         <h2 className="text-rr-cyan font-semibold text-base leading-tight">{corridor.label}</h2>
         <p className="text-[10px] text-rr-muted mt-0.5">via {corridor.primary_provider} · Payment Rail</p>
 
-        {/* KPI grid */}
         <div className="grid grid-cols-2 gap-2 mt-3">
           <div className="rounded p-2.5" style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.2)' }}>
             <p className="text-[10px] text-rr-muted">Annual Volume</p>
-            <p className="text-rr-cyan font-mono font-bold text-sm" >
+            <p className="text-rr-cyan font-mono font-bold text-sm">
               ${channel === 'formal'
                 ? (corridor.volume_bn_usd * corridor.formal).toFixed(1)
                 : channel === 'informal'
@@ -114,7 +149,7 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
                 : corridor.volume_bn_usd}B
             </p>
             <p className="text-[9px] text-rr-muted mt-0.5">
-             {channel === 'all' ? 'World Bank est.' : `${channel} channel only`}
+              {channel === 'all' ? 'World Bank est.' : `${channel} channel only`}
             </p>
           </div>
           <div className="rounded p-2.5" style={{ background: 'rgba(129,140,248,0.07)', border: '1px solid rgba(129,140,248,0.2)' }}>
@@ -127,7 +162,6 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
             </p>
           </div>
 
-          {/* Formal vs Informal bar */}
           <div className="col-span-2 rounded p-2.5" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.2)' }}>
             <p className="text-[10px] text-rr-muted mb-1.5">Formal vs Informal Channel Split</p>
             <div className="w-full h-2 rounded-full bg-rr-border overflow-hidden">
@@ -164,22 +198,22 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
           This corridor moves{' '}
           <span className="text-rr-text font-semibold">${corridor.volume_bn_usd}B/year</span> — often the{' '}
           <span className="text-rr-cyan">largest single source of foreign income</span> for receiving households.
-          {' '}Every 1% cost reduction saves families millions annually.
+          Every 1% cost reduction saves families millions annually.
           {(() => {
             const avgFee = providers.reduce((s, p) => s + (p.fee_usd ?? 0), 0) / (providers.length || 1)
             const humanCost = calcHumanCost(corridor.id, avgFee)
             return humanCost ? (
-              <span className="text-rr-amber font-medium"> {humanCost} on average across all providers.</span>
+              <span className="text-rr-amber font-medium"> {humanCost}.</span>
             ) : null
           })()}
           {informalPct > 30 && (
             <span className="text-rr-amber">
-              {' '}The {informalPct}% informal share signals significant hawala activity — a financial inclusion and AML risk.
+              {' '}The {informalPct}% informal share signals hawala activity — an AML risk.
             </span>
           )}
           {corridor.avg_cost_pct > 5 && (
             <span className="text-rr-amber">
-              {' '}Cost exceeds the G20 SDG target of 5% — regulatory reform is needed.
+              {' '}Cost exceeds the G20 SDG 5% target.
             </span>
           )}
         </p>
@@ -193,7 +227,6 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
           <Shield className="w-3.5 h-3.5 text-rr-green shrink-0" />
           <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Who Controls the Rail</p>
         </div>
-
         {governance ? (
           <>
             <div className="space-y-2.5">
@@ -227,7 +260,7 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
       </div>
 
       {/* ══════════════════════════════════════════════════
-          SECTION D — Functional Filters & Tooltips
+          SECTION D — Filters & Analysis (5 tabs)
       ══════════════════════════════════════════════════ */}
       <div className="p-4 border-b border-rr-border flex-1">
         <div className="flex items-center gap-2 mb-3">
@@ -266,7 +299,6 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
           <div className="flex justify-between text-[9px] text-rr-muted mt-1">
             <span>$50</span><span>$500</span><span>$1,000</span><span>$2,000</span>
           </div>
-          {/* ── Human Cost Translation (per case study "Zero Clerical Code") ── */}
           {best && corridor && (() => {
             const humanCost = calcHumanCost(corridor.id, best.fee_usd ?? 0)
             return humanCost ? (
@@ -275,33 +307,38 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
                 <AlertTriangle className="w-3 h-3 text-rr-amber shrink-0 mt-0.5" />
                 <span className="text-rr-muted leading-relaxed">
                   <span className="text-rr-amber font-semibold">{humanCost}</span>
-                  {' '}— using best available rate ({best.name}).
-                  <span className="text-rr-muted"> (ILO min. wage est.)</span>
+                  {' '}— best rate ({best.name}). (ILO est.)
                 </span>
               </div>
             ) : null
           })()}
         </div>
 
-        {/* Tab switch */}
-        <div className="flex gap-1 mb-2">
-          {(['timeline', 'providers', 'channels'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-1.5 rounded text-[9px] font-medium transition-all duration-150 ${
-                tab === t
+        {/* 5 Tab buttons */}
+        <div className="grid grid-cols-5 gap-0.5 mb-2">
+          {tabs.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`py-1.5 rounded text-[8.5px] font-medium transition-all duration-150 ${
+                tab === t.key
                   ? 'bg-rr-surface border border-rr-cyan text-rr-cyan'
                   : 'text-rr-muted border border-rr-border hover:text-rr-cyan'
               }`}>
-              {t === 'timeline' ? 'Timeline' : t === 'providers' ? 'Providers' : 'Channels'}
+              {t.label}
             </button>
           ))}
         </div>
 
         {/* Chart area */}
         <div className="h-56">
-          {tab === 'timeline'  && <TimelineChart data={timeline}  channel={channel} />}
-          {tab === 'providers' && <ProviderChart providers={providers} />}
-          {tab === 'channels'  && (
+          {tab === 'timeline'   && <TimelineChart data={timeline} channel={channel} />}
+          {tab === 'providers'  && <PlayerBreakdownChart data={playerData?.breakdown ?? []} />}
+          {tab === 'fxmargin'   && <FXMarginChart data={fxData} />}
+          {tab === 'costincome' && (() => {
+            // Import dynamically here to avoid SSR issues
+            const CostIncomeChart = dynamic(() => import('./CostIncomeChart'), { ssr: false })
+            return <CostIncomeChart data={[]} />
+          })()}
+          {tab === 'channels'   && (
             <div className="h-full flex flex-col justify-center gap-2 px-1">
               {channels.slice(0, 4).map(c => (
                 <div key={c.corridor_id}>
@@ -322,15 +359,25 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
           )}
         </div>
 
-        {/* Intelligence callout */}
+        {/* Intelligence callouts */}
         {tab === 'providers' && best && (
           <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
             style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
             <Zap className="w-3 h-3 text-rr-green shrink-0 mt-0.5" />
             <span className="text-rr-muted leading-relaxed">
               Best rate: <span className="text-rr-green font-semibold">{best.name}</span> — recipient gets{' '}
-              <span className="text-rr-text font-mono">${best.net_received?.toFixed(2)}</span> of your ${sendAmount}.
-              Saves <span className="text-rr-green font-mono">${((providers.reduce((s,p)=>s+(p.fee_usd??0),0)/providers.length)-(best.fee_usd??0)).toFixed(2)}</span> vs avg.
+              <span className="text-rr-text font-mono">${best.net_received?.toFixed(2)}</span> of ${sendAmount}.
+            </span>
+          </div>
+        )}
+
+        {tab === 'fxmargin' && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
+            style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+            <DollarSign className="w-3 h-3 text-rr-amber shrink-0 mt-0.5" />
+            <span className="text-rr-muted leading-relaxed">
+              <span className="text-rr-amber font-semibold">Hidden FX spread</span> is the gap between
+              mid-market rate and the rate you get. Traditional MTOs hide up to 3% here.
             </span>
           </div>
         )}
@@ -340,8 +387,19 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
             style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
             <TrendingUp className="w-3 h-3 text-rr-cyan shrink-0 mt-0.5" />
             <span className="text-rr-muted leading-relaxed">
-              Temporal view 2020–2024. Formal volumes peak in <span className="text-rr-cyan">Dec–Jan</span> (holiday remittances).
+              Temporal view 2020–2024. Formal volumes peak in <span className="text-rr-cyan">Dec–Jan</span>.
               YoY growth avg <span className="text-rr-cyan">4.5%</span>.
+            </span>
+          </div>
+        )}
+
+        {tab === 'costincome' && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
+            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
+            <BarChart2 className="w-3 h-3 text-rr-red shrink-0 mt-0.5" />
+            <span className="text-rr-muted leading-relaxed">
+              <span className="text-rr-red font-semibold">CRITICAL</span> corridors = fee is 15%+ of sender income.
+              Lower income senders carry the heaviest burden.
             </span>
           </div>
         )}
@@ -359,11 +417,11 @@ export default function Sidebar({ corridor, channel, sendAmount, onChannelChange
           Download Sample Data (.csv)
         </button>
         <p className="text-[9px] text-rr-muted text-center mt-1.5">
-  100 rows · World Bank / ECB structure · Mock data
-</p>
-<p className="text-[9px] text-rr-muted text-center mt-0.5">
-  World Bank RPW · ECB Data Portal · Data vintage: Q4 2024
-</p>
+          100 rows · World Bank / ECB structure · Mock data
+        </p>
+        <p className="text-[9px] text-rr-muted text-center mt-0.5">
+          World Bank RPW · ECB Data Portal · Data vintage: Q4 2024
+        </p>
       </div>
 
     </div>

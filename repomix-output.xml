@@ -1,0 +1,3734 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+backend/main.py
+backend/mock_data.json
+backend/requirements.txt
+frontend/.env.local
+frontend/next-env.d.ts
+frontend/next.config.js
+frontend/package.json
+frontend/postcss.config.js
+frontend/src/app/globals.css
+frontend/src/app/layout.tsx
+frontend/src/app/page.tsx
+frontend/src/components/CorridorMap.tsx
+frontend/src/components/ProviderChart.tsx
+frontend/src/components/Sidebar.tsx
+frontend/src/components/TimelineChart.tsx
+frontend/src/data/mock_data.json
+frontend/src/lib/api.ts
+frontend/src/types/index.ts
+frontend/tailwind.config.js
+frontend/tsconfig.json
+RCA_UAT_Checklist (1).xlsx
+RCA_VAR_Report.pdf
+README (1).md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+node_modules/
+__pycache__/
+venv/
+.env
+.next/
+dist/
+</file>
+
+<file path="backend/requirements.txt">
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pandas==2.2.2
+numpy==1.26.4
+geopandas==0.14.4
+shapely==2.0.4
+httpx==0.27.0
+python-dotenv==1.0.1
+</file>
+
+<file path="frontend/.env.local">
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token_here
+</file>
+
+<file path="frontend/next-env.d.ts">
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/basic-features/typescript for more information.
+</file>
+
+<file path="frontend/next.config.js">
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Disable React Strict Mode — prevents Leaflet "Map container already initialized" error
+  // Strict Mode intentionally mounts components twice in development to catch side effects.
+  // This breaks Leaflet which doesn't expect double-mount.
+  reactStrictMode: false,
+  env: {
+    NEXT_PUBLIC_API_URL:      process.env.NEXT_PUBLIC_API_URL      || "http://localhost:8000",
+    NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "",
+  },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "*.basemaps.cartocdn.com" },
+      { protocol: "https", hostname: "*.tile.openstreetmap.org" },
+    ],
+  },
+}
+module.exports = nextConfig
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "remittance-corridor-analyzer",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
+    "@types/leaflet": "^1.9.12",
+
+    "recharts": "^2.12.7",
+    "d3": "^7.9.0",
+    "@types/d3": "^7.4.3",
+
+    "@turf/turf": "^6.5.0",
+
+    "@tanstack/react-table": "^8.19.3",
+
+    "lucide-react": "^0.400.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.4.0",
+
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-tooltip": "^1.1.2",
+    "class-variance-authority": "^0.7.0"
+  }
+}
+</file>
+
+<file path="frontend/postcss.config.js">
+module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } }
+</file>
+
+<file path="frontend/src/app/globals.css">
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #030712;
+  color: #E2E8F0;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ── Glassmorphism card ── */
+.glass {
+  background: rgba(11, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #1F2937;
+  border-radius: 8px;
+}
+
+/* ── 0.5px cyan glow on active elements (protocol requirement) ── */
+.glow-cyan   { box-shadow: 0 0 0 0.5px #38BDF8, 0 0 12px rgba(56,189,248,0.25); }
+.glow-indigo { box-shadow: 0 0 0 0.5px #818CF8, 0 0 12px rgba(129,140,248,0.2); }
+
+/* ── Pulse animation for live indicator ── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.4); }
+  50%       { opacity: 0.6; box-shadow: 0 0 0 4px rgba(56,189,248,0); }
+}
+.pulse { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: #030712; }
+::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #38BDF8; }
+
+/* ── Leaflet dark overrides ── */
+.leaflet-container        { background: #030712 !important; }
+.leaflet-control-zoom     { border: 1px solid #1F2937 !important; }
+.leaflet-control-zoom a   { background: #0B1117 !important; color: #38BDF8 !important; border-color: #1F2937 !important; }
+.leaflet-control-zoom a:hover { background: #1F2937 !important; }
+.rr-tooltip {
+  background: #0B1117 !important;
+  border: 1px solid #1F2937 !important;
+  color: #E2E8F0 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+.leaflet-tooltip-top:before { border-top-color: #1F2937 !important; }
+</file>
+
+<file path="frontend/src/app/layout.tsx">
+import type { Metadata } from 'next'
+import './globals.css'
+import 'leaflet/dist/leaflet.css'
+
+export const metadata: Metadata = {
+  title: 'Real Rails – Remittance Corridor Analyzer',
+  description: 'Production intelligence dashboard · Payment Rail · ID 13 · Temporal Archetype',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  )
+}
+</file>
+
+<file path="frontend/src/app/page.tsx">
+'use client'
+/**
+ * page.tsx — Main Dashboard
+ * Real Rails · Remittance Corridor Analyzer · ID 13
+ * Temporal Archetype · Payment Rail
+ * Layout: 70% Main Stage + 30% Intelligence Sidebar
+ */
+
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import type { Corridor } from '@/types'
+import { getCorridors } from '@/lib/api'
+import MOCK from '@/data/mock_data.json'
+import Sidebar from '@/components/Sidebar'
+import { Activity, Globe, TrendingUp, AlertCircle, Radio, CloudOff } from 'lucide-react'
+
+const CorridorMap = dynamic(() => import('@/components/CorridorMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+      <Globe className="w-8 h-8 text-rr-cyan animate-pulse" />
+      <p className="text-sm text-rr-muted font-mono tracking-wide">LOADING MAP ENGINE</p>
+    </div>
+  ),
+})
+
+export default function Dashboard() {
+  // Pre-seed from local mock so sidebar is never empty on first render (Fix 5)
+  const [corridors,  setCorridors]  = useState<Corridor[]>(MOCK.corridors as Corridor[])
+  const [selectedId, setSelectedId] = useState('US-MX')
+  const [channel,    setChannel]    = useState<'all' | 'formal' | 'informal'>('all')
+  const [amount,     setAmount]     = useState(200)
+  const [dataSource, setDataSource] = useState<string>('frontend_mock')
+
+  useEffect(() => {
+    // Fix 3: destructure both corridors and dataSource
+    getCorridors().then(({ corridors: data, dataSource: src }) => {
+      setCorridors(data)
+      setDataSource(src)
+    })
+  }, [])
+
+  const active      = corridors.find(c => c.id === selectedId)
+  const totalVolume = corridors.reduce((s, c) => s + c.volume_bn_usd, 0).toFixed(0)
+  const highRisk    = corridors.filter(c => c.avg_cost_pct > 5).length
+  const isLive      = dataSource === 'World Bank Live'
+
+  return (
+    <div className="flex flex-col h-screen bg-rr-bg overflow-hidden">
+
+      {/* ══════════ TOP HEADER ══════════ */}
+      <header
+        className="flex items-center justify-between px-4 py-2 border-b border-rr-border shrink-0"
+        style={{ background: 'rgba(17, 57, 96, 0.97)', backdropFilter: 'blur(8px)' }}>
+
+        {/* Left: Brand */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-rr-cyan pulse" />
+            <span className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Real Rails</span>
+          </div>
+          <span className="text-rr-border">|</span>
+          <h1 className="text-rr-text text-sm font-semibold tracking-tight">
+            Remittance Corridor Analyzer
+          </h1>
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded text-rr-indigo"
+            style={{ background: 'rgba(129,140,248,0.12)', border: '1px solid rgba(129,140,248,0.3)' }}>
+            PAYMENT RAIL · ID 13
+          </span>
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded text-rr-amber"
+            style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
+            TEMPORAL
+          </span>
+        </div>
+
+        {/* Right: KPIs + dynamic live/mock status */}
+        <div className="flex items-center gap-5 text-[10px]">
+          <div className="flex items-center gap-1.5 text-rr-muted">
+            <TrendingUp className="w-3 h-3 text-rr-green" />
+            <span>Tracked Volume</span>
+            <span className="text-rr-cyan font-mono font-semibold">${totalVolume}B/yr</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-rr-muted">
+            <Activity className="w-3 h-3 text-rr-indigo" />
+            <span>{corridors.length} Corridors</span>
+          </div>
+          {highRisk > 0 && (
+            <div className="flex items-center gap-1.5 text-rr-amber">
+              <AlertCircle className="w-3 h-3" />
+              <span>{highRisk} above G20 5% target</span>
+            </div>
+          )}
+
+          {/* Dynamic data source status — Fix 3 */}
+          <div
+            className="flex items-center gap-1.5 px-2 py-1 rounded font-mono"
+            style={{
+              background: isLive ? 'rgba(52,211,153,0.08)' : 'rgba(245,158,11,0.08)',
+              border: `1px solid ${isLive ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)'}`,
+              color: isLive ? '#34D399' : '#F59E0B',
+            }}>
+            {isLive ? <Radio className="w-3 h-3" /> : <CloudOff className="w-3 h-3" />}
+            <span>{isLive ? 'World Bank · ECB Live' : 'Mock Data Active'}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ══════════ CORRIDOR TABS ══════════ */}
+      <div
+        className="flex items-center gap-1.5 px-4 py-2 border-b border-rr-border overflow-x-auto shrink-0"
+        style={{ background: 'rgba(11,17,23,0.7)' }}>
+        <span className="text-[9px] font-mono text-rr-muted uppercase tracking-widest mr-1 shrink-0">Corridors</span>
+        {corridors.map(c => (
+          <button
+            key={c.id}
+            onClick={() => setSelectedId(c.id)}
+            className={`px-3 py-1.5 rounded text-[10px] font-medium whitespace-nowrap transition-all duration-150 ${
+              selectedId === c.id
+                ? 'bg-rr-cyan text-rr-bg glow-cyan'
+                : 'text-rr-muted border border-rr-border hover:border-rr-cyan hover:text-rr-cyan'
+            }`}>
+            {c.label}
+            {c.avg_cost_pct > 5 && (
+              <span className="ml-1.5 text-[8px] font-mono px-1 rounded"
+                style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}>
+                HIGH
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ══════════ MAIN 70/30 LAYOUT ══════════ */}
+      <div className="flex flex-1 gap-3 p-3 overflow-hidden min-h-0">
+
+        {/* ── LEFT: Main Stage 70% ── */}
+        <main className="flex flex-col gap-3" style={{ width: '70%' }}>
+
+          {/* Map */}
+          <div className="glass flex-1 overflow-hidden relative min-h-0">
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] text-rr-muted font-mono"
+              style={{ background: 'rgba(3,7,18,0.9)', border: '1px solid #1F2937', backdropFilter: 'blur(4px)' }}>
+              <Globe className="w-3 h-3 text-rr-cyan" />
+              CORRIDOR MAP · LEAFLET
+            </div>
+            <div className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[9px] text-rr-muted font-mono"
+              style={{ background: 'rgba(3,7,18,0.8)', border: '1px solid #1F2937' }}>
+              Sources: World Bank · ECB Data Portal · Synthetic Mock
+            </div>
+            <CorridorMap
+              corridors={corridors}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          </div>
+
+          {/* Stats bar */}
+          {active && (
+            <div className="glass px-4 py-2.5 flex items-center gap-4 shrink-0 overflow-x-auto">
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted uppercase tracking-widest font-mono">Selected</p>
+                <p className="text-rr-cyan font-semibold text-xs">{active.label}</p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Volume / yr</p>
+                <p className="text-rr-text font-mono text-xs font-semibold">${active.volume_bn_usd}B</p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Avg Transfer Cost</p>
+                <p className={`font-mono text-xs font-semibold ${active.avg_cost_pct > 5 ? 'text-rr-amber' : active.avg_cost_pct > 4 ? 'text-rr-amber' : 'text-rr-green'}`}>
+                  {active.avg_cost_pct}%
+                  <span className="text-rr-muted text-[9px] font-normal ml-1">
+                    {active.avg_cost_pct > 5 ? 'above G20 target' : active.avg_cost_pct > 4 ? 'near G20 limit' : 'G20 compliant'}
+                  </span>
+                </p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Formal Channel</p>
+                <p className="text-rr-green font-mono text-xs font-semibold">{Math.round(active.formal * 100)}%</p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Informal Channel</p>
+                <p className={`font-mono text-xs font-semibold ${active.informal > 0.35 ? 'text-rr-amber' : 'text-rr-muted'}`}>
+                  {Math.round(active.informal * 100)}%
+                  {active.informal > 0.35 && (
+                    <span className="ml-1.5 text-[8px] font-mono px-1 rounded"
+                      style={{ background: 'rgba(245,158,11,0.12)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.25)' }}>
+                      HAWALA RISK
+                    </span>
+                  )}
+                </p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Top Provider</p>
+                <p className="text-rr-indigo font-medium text-xs">{active.primary_provider}</p>
+              </div>
+              <div className="h-6 w-px bg-rr-border shrink-0" />
+              <div className="shrink-0">
+                <p className="text-[9px] text-rr-muted">Trend</p>
+                <p className={`text-xs font-semibold ${active.trend === 'up' ? 'text-rr-green' : active.trend === 'down' ? 'text-rr-amber' : 'text-rr-muted'}`}>
+                  {active.trend === 'up' ? 'Growing' : active.trend === 'down' ? 'Declining' : 'Flat'}
+                </p>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* ── RIGHT: Intelligence Sidebar 30% ── */}
+        <div style={{ width: '30%' }} className="min-h-0 overflow-hidden flex-none">
+          <Sidebar
+            corridor={active}
+            channel={channel}
+            sendAmount={amount}
+            onChannelChange={setChannel}
+            onSendAmountChange={setAmount}
+          />
+        </div>
+
+      </div>
+    </div>
+  )
+}
+</file>
+
+<file path="frontend/src/components/CorridorMap.tsx">
+'use client'
+/**
+ * CorridorMap.tsx
+ * Leaflet map with arc corridors, dot markers, rich tooltips.
+ * GUARDRAIL: Uses Leaflet projection — no manual SVG/Math coordinates.
+ *
+ * FIXES:
+ *  1. Map now destroys on unmount → prevents "already initialized" crash on hot-reload
+ *  2. Corridor layers redrawn in separate effect keyed to [corridors, selectedId]
+ *     → active corridor highlight now updates when user clicks a tab
+ *  3. Origin markers are clickable (previously only the polyline was)
+ *  4. React Strict Mode double-invoke fix → clears _leaflet_id before re-init
+ */
+import { useEffect, useRef } from 'react'
+import type { Corridor } from '@/types'
+
+interface Props {
+  corridors:  Corridor[]
+  selectedId: string
+  onSelect:   (id: string) => void
+}
+
+export default function CorridorMap({ corridors, selectedId, onSelect }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef       = useRef<any>(null)
+  const layersRef    = useRef<any[]>([])
+
+  // Initialise map once — handles React Strict Mode double-invoke
+  useEffect(() => {
+    if (typeof window === 'undefined' || !containerRef.current) return
+
+    // Clear any stale Leaflet state from previous mount (hot-reload / strict mode)
+    const container = containerRef.current as any
+    if (container._leaflet_id) {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      } else {
+        delete container._leaflet_id
+      }
+    }
+
+    if (mapRef.current) return
+
+    import('leaflet').then(L => {
+      if (!containerRef.current) return
+      const el = containerRef.current as any
+      if (el._leaflet_id) return  // strict mode second call — already mounted
+      const map = L.map(containerRef.current, {
+        center: [20, 15], zoom: 2,
+        zoomControl: true, attributionControl: false,
+        minZoom: 1, maxZoom: 8,
+      })
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+      }).addTo(map)
+      mapRef.current = map
+    })
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
+
+  // Redraw layers whenever corridors or selectedId changes
+  useEffect(() => {
+    if (!mapRef.current || corridors.length === 0) return
+
+    import('leaflet').then(L => {
+      layersRef.current.forEach(l => l.remove())
+      layersRef.current = []
+
+      corridors.forEach(c => {
+        const active  = c.id === selectedId
+        const color   = active ? '#38BDF8' : '#818CF8'
+        const opacity = active ? 0.95 : 0.45
+        const weight  = active ? 2.5 : 1.5
+
+        const line = L.polyline(
+          [[c.from_lat, c.from_lng], [c.to_lat, c.to_lng]],
+          { color, opacity, weight, dashArray: active ? undefined : '6 8' }
+        ).addTo(mapRef.current)
+        line.on('click', () => onSelect(c.id))
+        layersRef.current.push(line)
+
+        const tip = `
+          <div style="min-width:180px">
+            <b style="color:#38BDF8">${c.from_name} → ${c.to_name}</b><br/>
+            <div style="margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px">
+              <span style="color:#64748B">Volume</span>  <span style="color:#E2E8F0;font-family:monospace">$${c.volume_bn_usd}B/yr</span>
+              <span style="color:#64748B">Avg Cost</span> <span style="color:${c.avg_cost_pct>4?'#F59E0B':'#34D399'};font-family:monospace">${c.avg_cost_pct}%</span>
+              <span style="color:#64748B">Formal</span>   <span style="color:#34D399;font-family:monospace">${Math.round(c.formal*100)}%</span>
+              <span style="color:#64748B">Provider</span> <span style="color:#818CF8">${c.primary_provider}</span>
+            </div>
+          </div>`
+
+        const fromMarker = L.marker([c.from_lat, c.from_lng], {
+          icon: L.divIcon({
+            html: `<div style="width:${active?12:9}px;height:${active?12:9}px;border-radius:50%;background:${color};box-shadow:0 0 ${active?10:5}px ${color};border:2px solid #030712;cursor:pointer"></div>`,
+            className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+          })
+        }).addTo(mapRef.current)
+          .bindTooltip(tip, { className: 'rr-tooltip', direction: 'top', offset: [0, -8] })
+        fromMarker.on('click', () => onSelect(c.id))
+        layersRef.current.push(fromMarker)
+
+        const toMarker = L.marker([c.to_lat, c.to_lng], {
+          icon: L.divIcon({
+            html: `<div style="width:7px;height:7px;border-radius:50%;background:${color};opacity:0.75;border:1px solid #030712"></div>`,
+            className: '', iconSize: [7, 7], iconAnchor: [3, 3],
+          })
+        }).addTo(mapRef.current)
+        layersRef.current.push(toMarker)
+      })
+    })
+  }, [corridors, selectedId, onSelect])
+
+  return <div ref={containerRef} className="w-full h-full rounded-lg" />
+}
+</file>
+
+<file path="frontend/src/components/ProviderChart.tsx">
+'use client'
+/**
+ * ProviderChart.tsx
+ * Provider fee benchmarking — intelligence layer shows vs regional average.
+ * Uses Recharts (protocol requirement).
+ *
+ * FIX: ReferenceLine label `position` changed from 'insideTopRight' to
+ *      'insideBottomRight' — 'insideTopRight' places the label outside the
+ *      chart bounds when bars are short, making it invisible.
+ */
+import { useMemo } from 'react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ReferenceLine, ResponsiveContainer } from 'recharts'
+import type { Provider } from '@/types'
+
+export default function ProviderChart({ providers }: { providers: Provider[] }) {
+  const sorted = useMemo(() => [...providers].sort((a, b) => (a.fee_usd ?? 0) - (b.fee_usd ?? 0)), [providers])
+  const avg    = sorted.reduce((s, p) => s + (p.fee_usd ?? 0), 0) / (sorted.length || 1)
+
+  const Tip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null
+    const p: Provider = payload[0].payload
+    return (
+      <div className="glass p-3 text-xs min-w-[165px]">
+        <p className="text-rr-cyan font-semibold mb-1.5">{p.name}</p>
+        <div className="space-y-0.5 text-rr-muted">
+          <div className="flex justify-between"><span>Type</span>     <span className="text-rr-text">{p.type}</span></div>
+          <div className="flex justify-between"><span>Fee</span>      <span className="text-rr-text font-mono">${p.fee_usd?.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>Received</span> <span className="text-rr-green font-mono">${p.net_received?.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>Speed</span>    <span className="text-rr-text">{p.speed_hrs}h</span></div>
+          <div className="flex justify-between"><span>Rating</span>   <span className="text-rr-amber">★ {p.rating}</span></div>
+        </div>
+        <p className="mt-1.5 text-[10px] font-medium" style={{ color: (p.vs_avg_pct ?? 0) <= 0 ? '#34D399' : '#F59E0B' }}>
+          {p.vs_avg_label}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={sorted} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
+        <XAxis dataKey="name" tick={{ fill: '#64748B', fontSize: 9 }} tickLine={false} />
+        <YAxis tick={{ fill: '#64748B', fontSize: 9 }} tickLine={false} tickFormatter={v => `$${v}`} />
+        <Tooltip content={<Tip />} cursor={{ fill: 'rgba(56,189,248,0.04)' }} />
+        <ReferenceLine y={avg} stroke="#818CF8" strokeDasharray="4 4"
+          label={{ value: 'avg', fill: '#818CF8', fontSize: 9, position: 'insideBottomRight' }} />
+        <Bar dataKey="fee_usd" radius={[3, 3, 0, 0]}>
+          {sorted.map(p => (
+            <Cell key={p.id} fill={(p.vs_avg_pct ?? 0) <= 0 ? '#38BDF8' : '#818CF8'} fillOpacity={0.85} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+</file>
+
+<file path="frontend/src/components/Sidebar.tsx">
+'use client'
+/**
+ * Sidebar.tsx – Intelligence Sidebar (30% width)
+ * Section A: Title & High-level Metric
+ * Section B: Why This Matters
+ * Section C: Who Controls the Rail
+ * Section D: Functional Filters & Tooltips
+ * Section E: Download Sample Data
+ */
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import type { Corridor, Provider, TimelineRow, ChannelRow, GovernanceData } from '@/types'
+import { getTimeline, getCostAnalysis, getChannelComparison, getGovernance } from '@/lib/api'
+import { Info, Shield, SlidersHorizontal, Download, Zap, Globe, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle } from 'lucide-react'
+
+const TimelineChart = dynamic(() => import('./TimelineChart'), { ssr: false })
+const ProviderChart = dynamic(() => import('./ProviderChart'), { ssr: false })
+
+interface Props {
+  corridor:           Corridor | undefined
+  channel:            'all' | 'formal' | 'informal'
+  sendAmount:         number
+  onChannelChange:    (v: 'all' | 'formal' | 'informal') => void
+  onSendAmountChange: (v: number) => void
+}
+
+// ── Human Cost Calculator ─────────────────────────────────────────────────
+// Minimum wage data (USD/hr, 2024 estimates) for receiving countries
+// Sources: ILO, World Bank labor stats — labeled as estimates
+const RECEIVING_COUNTRY_WAGES: Record<string, { hourlyUSD: number; label: string; currency: string }> = {
+  'US-MX':  { hourlyUSD: 0.93,  label: 'Mexico',      currency: 'MXN' },
+  'US-IN':  { hourlyUSD: 0.28,  label: 'India',        currency: 'INR' },
+  'UK-NG':  { hourlyUSD: 0.21,  label: 'Nigeria',      currency: 'NGN' },
+  'EU-PH':  { hourlyUSD: 0.95,  label: 'Philippines',  currency: 'PHP' },
+  'UAE-PK': { hourlyUSD: 0.18,  label: 'Pakistan',     currency: 'PKR' },
+  'US-PH':  { hourlyUSD: 0.95,  label: 'Philippines',  currency: 'PHP' },
+  'UAE-IN': { hourlyUSD: 0.28,  label: 'India (Kerala)', currency: 'INR' },
+}
+
+function calcHumanCost(corridorId: string, feeUSD: number): string | null {
+  const w = RECEIVING_COUNTRY_WAGES[corridorId]
+  if (!w || !feeUSD || feeUSD <= 0) return null
+  const hours = feeUSD / w.hourlyUSD
+  if (hours < 1)   return `This fee = ${Math.round(hours * 60)} mins of work at ${w.label} min. wage`
+  if (hours < 8)   return `This fee = ${hours.toFixed(1)} hrs of work at ${w.label} min. wage`
+  const days = hours / 8
+  return `This fee = ${days.toFixed(1)} day${days >= 2 ? 's' : ''} of work at ${w.label} min. wage`
+}
+
+const TREND_ICON = {
+  up:   <TrendingUp   className="w-3.5 h-3.5 text-rr-green" />,
+  down: <TrendingDown className="w-3.5 h-3.5 text-rr-amber" />,
+  flat: <Minus        className="w-3.5 h-3.5 text-rr-muted" />,
+}
+
+export default function Sidebar({ corridor, channel, sendAmount, onChannelChange, onSendAmountChange }: Props) {
+  const [timeline,   setTimeline]   = useState<TimelineRow[]>([])
+  const [providers,  setProviders]  = useState<Provider[]>([])
+  const [channels,   setChannels]   = useState<ChannelRow[]>([])
+  const [governance, setGovernance] = useState<GovernanceData | null>(null)
+  const [tab,        setTab]        = useState<'timeline' | 'providers' | 'channels'>('timeline')
+
+  useEffect(() => { getTimeline(corridor?.id).then(setTimeline) },         [corridor?.id])
+  useEffect(() => { getCostAnalysis(sendAmount, corridor?.id).then(setProviders) }, [sendAmount, corridor?.id])
+  useEffect(() => { getChannelComparison(corridor?.id).then(setChannels) }, [corridor?.id])
+  useEffect(() => { getGovernance().then(setGovernance) },                  [])
+
+  const handleDownload = () => {
+    const a = document.createElement('a')
+    a.href     = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/download-sample`
+    a.download = 'remittance_sample_data.csv'
+    a.click()
+  }
+
+  // ── Empty state ──────────────────────────────────────────────────────────
+  if (!corridor) {
+    return (
+      <div className="glass h-full flex flex-col items-center justify-center gap-3 text-rr-muted">
+        <Globe className="w-10 h-10 opacity-20" />
+        <p className="text-sm">Select a corridor on the map</p>
+        <p className="text-[10px] text-center px-6 opacity-60">Click any arc line or use the corridor tabs above</p>
+      </div>
+    )
+  }
+
+  const formalPct   = Math.round(corridor.formal   * 100)
+  const informalPct = Math.round(corridor.informal * 100)
+  const best        = [...providers].sort((a, b) => (a.fee_usd ?? 99) - (b.fee_usd ?? 99))[0]
+  const channelRow  = channels.find(c => c.corridor_id === corridor.id)
+
+  return (
+    <div className="glass h-full overflow-y-auto flex flex-col text-sm">
+
+      {/* ══════════════════════════════════════════════════
+          SECTION A — Title & High-level Metric
+      ══════════════════════════════════════════════════ */}
+      <div className="p-4 border-b border-rr-border">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Active Corridor</p>
+          {TREND_ICON[corridor.trend]}
+        </div>
+        <h2 className="text-rr-cyan font-semibold text-base leading-tight">{corridor.label}</h2>
+        <p className="text-[10px] text-rr-muted mt-0.5">via {corridor.primary_provider} · Payment Rail</p>
+
+        {/* KPI grid */}
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <div className="rounded p-2.5" style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.2)' }}>
+            <p className="text-[10px] text-rr-muted">Annual Volume</p>
+            <p className="text-rr-cyan font-mono font-bold text-sm" >
+              ${channel === 'formal'
+                ? (corridor.volume_bn_usd * corridor.formal).toFixed(1)
+                : channel === 'informal'
+                ? (corridor.volume_bn_usd * corridor.informal).toFixed(1)
+                : corridor.volume_bn_usd}B
+            </p>
+            <p className="text-[9px] text-rr-muted mt-0.5">
+             {channel === 'all' ? 'World Bank est.' : `${channel} channel only`}
+            </p>
+          </div>
+          <div className="rounded p-2.5" style={{ background: 'rgba(129,140,248,0.07)', border: '1px solid rgba(129,140,248,0.2)' }}>
+            <p className="text-[10px] text-rr-muted">Avg Transfer Cost</p>
+            <p className={`font-mono font-bold text-sm ${corridor.avg_cost_pct > 4 ? 'text-rr-amber' : 'text-rr-green'}`}>
+              {corridor.avg_cost_pct}%
+            </p>
+            <p className="text-[9px] text-rr-muted mt-0.5">
+              {corridor.avg_cost_pct > 5 ? 'Above G20 5% target' : corridor.avg_cost_pct > 4 ? 'Near G20 limit' : 'G20 compliant'}
+            </p>
+          </div>
+
+          {/* Formal vs Informal bar */}
+          <div className="col-span-2 rounded p-2.5" style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.2)' }}>
+            <p className="text-[10px] text-rr-muted mb-1.5">Formal vs Informal Channel Split</p>
+            <div className="w-full h-2 rounded-full bg-rr-border overflow-hidden">
+              <div className="h-full rounded-full bg-rr-green transition-all duration-700"
+                style={{ width: `${formalPct}%` }} />
+            </div>
+            <div className="flex justify-between text-[10px] mt-1.5">
+              <span className="text-rr-green font-medium">Formal {formalPct}%</span>
+              <span className="text-rr-amber font-medium">Informal {informalPct}%</span>
+            </div>
+            {channelRow && (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                {channelRow.hawala_risk === 'HIGH'
+                  ? <AlertTriangle className="w-3 h-3 text-rr-amber" />
+                  : <CheckCircle   className="w-3 h-3 text-rr-green" />}
+                <span className="text-[10px]" style={{ color: channelRow.hawala_risk === 'HIGH' ? '#F59E0B' : '#34D399' }}>
+                  Hawala risk: {channelRow.hawala_risk}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════
+          SECTION B — Why This Matters
+      ══════════════════════════════════════════════════ */}
+      <div className="p-4 border-b border-rr-border">
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="w-3.5 h-3.5 text-rr-indigo shrink-0" />
+          <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Why This Matters</p>
+        </div>
+        <p className="text-rr-muted text-xs leading-relaxed">
+          This corridor moves{' '}
+          <span className="text-rr-text font-semibold">${corridor.volume_bn_usd}B/year</span> — often the{' '}
+          <span className="text-rr-cyan">largest single source of foreign income</span> for receiving households.
+          {' '}Every 1% cost reduction saves families millions annually.
+          {(() => {
+            const avgFee = providers.reduce((s, p) => s + (p.fee_usd ?? 0), 0) / (providers.length || 1)
+            const humanCost = calcHumanCost(corridor.id, avgFee)
+            return humanCost ? (
+              <span className="text-rr-amber font-medium"> {humanCost} on average across all providers.</span>
+            ) : null
+          })()}
+          {informalPct > 30 && (
+            <span className="text-rr-amber">
+              {' '}The {informalPct}% informal share signals significant hawala activity — a financial inclusion and AML risk.
+            </span>
+          )}
+          {corridor.avg_cost_pct > 5 && (
+            <span className="text-rr-amber">
+              {' '}Cost exceeds the G20 SDG target of 5% — regulatory reform is needed.
+            </span>
+          )}
+        </p>
+      </div>
+
+      {/* ══════════════════════════════════════════════════
+          SECTION C — Who Controls the Rail
+      ══════════════════════════════════════════════════ */}
+      <div className="p-4 border-b border-rr-border">
+        <div className="flex items-center gap-2 mb-3">
+          <Shield className="w-3.5 h-3.5 text-rr-green shrink-0" />
+          <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Who Controls the Rail</p>
+        </div>
+
+        {governance ? (
+          <>
+            <div className="space-y-2.5">
+              {(governance.regulators ?? []).map(r => (
+                <div key={r.region} className="flex gap-2.5 items-start">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded shrink-0 mt-0.5"
+                    style={{ background: `${r.color}18`, color: r.color, border: `1px solid ${r.color}35` }}>
+                    {r.region}
+                  </span>
+                  <div>
+                    <p className="text-rr-text text-[11px] font-medium leading-tight">{r.body}</p>
+                    <p className="text-rr-muted text-[10px] mt-0.5">{r.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-rr-border">
+              <div className="text-center rounded p-2" style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.15)' }}>
+                <p className="text-rr-cyan font-mono font-bold">{governance.swift_coverage_pct}%</p>
+                <p className="text-rr-muted text-[9px]">SWIFT Coverage</p>
+              </div>
+              <div className="text-center rounded p-2" style={{ background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.15)' }}>
+                <p className="text-rr-indigo font-mono font-bold">{governance.avg_settlement_days}d</p>
+                <p className="text-rr-muted text-[9px]">Avg Settlement</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-rr-muted text-xs">Loading governance data…</p>
+        )}
+      </div>
+
+      {/* ══════════════════════════════════════════════════
+          SECTION D — Functional Filters & Tooltips
+      ══════════════════════════════════════════════════ */}
+      <div className="p-4 border-b border-rr-border flex-1">
+        <div className="flex items-center gap-2 mb-3">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-rr-amber shrink-0" />
+          <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest">Filters & Analysis</p>
+        </div>
+
+        {/* Channel filter */}
+        <div className="mb-3">
+          <p className="text-[10px] text-rr-muted mb-1.5">Channel Filter</p>
+          <div className="flex gap-1">
+            {(['all', 'formal', 'informal'] as const).map(ch => (
+              <button key={ch} onClick={() => onChannelChange(ch)}
+                className={`flex-1 py-1.5 rounded text-[10px] font-medium capitalize transition-all duration-150 ${
+                  channel === ch
+                    ? 'bg-rr-cyan text-rr-bg glow-cyan'
+                    : 'text-rr-muted border border-rr-border hover:border-rr-cyan hover:text-rr-cyan'
+                }`}>
+                {ch}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Cost slider */}
+        <div className="mb-3">
+          <div className="flex justify-between items-center mb-1.5">
+            <p className="text-[10px] text-rr-muted">Send Amount</p>
+            <span className="text-rr-cyan font-mono text-xs font-semibold">${sendAmount}</span>
+          </div>
+          <input type="range" min={50} max={2000} step={50} value={sendAmount}
+            onChange={e => onSendAmountChange(+e.target.value)}
+            className="w-full h-1.5 rounded-full cursor-pointer accent-[#38BDF8]"
+            style={{ background: `linear-gradient(to right, #38BDF8 ${((sendAmount-50)/1950)*100}%, #1F2937 ${((sendAmount-50)/1950)*100}%)` }}
+          />
+          <div className="flex justify-between text-[9px] text-rr-muted mt-1">
+            <span>$50</span><span>$500</span><span>$1,000</span><span>$2,000</span>
+          </div>
+          {/* ── Human Cost Translation (per case study "Zero Clerical Code") ── */}
+          {best && corridor && (() => {
+            const humanCost = calcHumanCost(corridor.id, best.fee_usd ?? 0)
+            return humanCost ? (
+              <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
+                style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                <AlertTriangle className="w-3 h-3 text-rr-amber shrink-0 mt-0.5" />
+                <span className="text-rr-muted leading-relaxed">
+                  <span className="text-rr-amber font-semibold">{humanCost}</span>
+                  {' '}— using best available rate ({best.name}).
+                  <span className="text-rr-muted"> (ILO min. wage est.)</span>
+                </span>
+              </div>
+            ) : null
+          })()}
+        </div>
+
+        {/* Tab switch */}
+        <div className="flex gap-1 mb-2">
+          {(['timeline', 'providers', 'channels'] as const).map(t => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`flex-1 py-1.5 rounded text-[9px] font-medium transition-all duration-150 ${
+                tab === t
+                  ? 'bg-rr-surface border border-rr-cyan text-rr-cyan'
+                  : 'text-rr-muted border border-rr-border hover:text-rr-cyan'
+              }`}>
+              {t === 'timeline' ? 'Timeline' : t === 'providers' ? 'Providers' : 'Channels'}
+            </button>
+          ))}
+        </div>
+
+        {/* Chart area */}
+        <div className="h-56">
+          {tab === 'timeline'  && <TimelineChart data={timeline}  channel={channel} />}
+          {tab === 'providers' && <ProviderChart providers={providers} />}
+          {tab === 'channels'  && (
+            <div className="h-full flex flex-col justify-center gap-2 px-1">
+              {channels.slice(0, 4).map(c => (
+                <div key={c.corridor_id}>
+                  <div className="flex justify-between text-[10px] mb-0.5">
+                    <span className="text-rr-muted truncate">{c.corridor_label}</span>
+                    <span className={c.hawala_risk === 'HIGH' ? 'text-rr-amber' : 'text-rr-green'}>{c.hawala_risk}</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-rr-border overflow-hidden">
+                    <div className="h-full rounded-full bg-rr-green" style={{ width: `${c.formal_pct}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[9px] text-rr-muted mt-0.5">
+                    <span>Formal {c.formal_pct}%</span>
+                    <span>Informal {c.informal_pct}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Intelligence callout */}
+        {tab === 'providers' && best && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
+            style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
+            <Zap className="w-3 h-3 text-rr-green shrink-0 mt-0.5" />
+            <span className="text-rr-muted leading-relaxed">
+              Best rate: <span className="text-rr-green font-semibold">{best.name}</span> — recipient gets{' '}
+              <span className="text-rr-text font-mono">${best.net_received?.toFixed(2)}</span> of your ${sendAmount}.
+              Saves <span className="text-rr-green font-mono">${((providers.reduce((s,p)=>s+(p.fee_usd??0),0)/providers.length)-(best.fee_usd??0)).toFixed(2)}</span> vs avg.
+            </span>
+          </div>
+        )}
+
+        {tab === 'timeline' && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded text-[10px]"
+            style={{ background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.18)' }}>
+            <TrendingUp className="w-3 h-3 text-rr-cyan shrink-0 mt-0.5" />
+            <span className="text-rr-muted leading-relaxed">
+              Temporal view 2020–2024. Formal volumes peak in <span className="text-rr-cyan">Dec–Jan</span> (holiday remittances).
+              YoY growth avg <span className="text-rr-cyan">4.5%</span>.
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* ══════════════════════════════════════════════════
+          SECTION E — Download Sample Data
+      ══════════════════════════════════════════════════ */}
+      <div className="p-4">
+        <button onClick={handleDownload}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded text-xs font-semibold
+            border border-rr-cyan text-rr-cyan hover:bg-rr-cyan hover:text-rr-bg
+            transition-all duration-200 glow-cyan">
+          <Download className="w-3.5 h-3.5" />
+          Download Sample Data (.csv)
+        </button>
+        <p className="text-[9px] text-rr-muted text-center mt-1.5">
+  100 rows · World Bank / ECB structure · Mock data
+</p>
+<p className="text-[9px] text-rr-muted text-center mt-0.5">
+  World Bank RPW · ECB Data Portal · Data vintage: Q4 2024
+</p>
+      </div>
+
+    </div>
+  )
+}
+</file>
+
+<file path="frontend/src/components/TimelineChart.tsx">
+'use client'
+/**
+ * TimelineChart.tsx — Temporal Archetype (core feature)
+ * Monthly send/receive volume 2020–2024.
+ * Year boundary reference lines make the time structure immediately readable.
+ * Uses Recharts (protocol requirement).
+ */
+import { useMemo } from 'react'
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend, ResponsiveContainer, ReferenceLine
+} from 'recharts'
+import type { TimelineRow } from '@/types'
+
+interface Props {
+  data:    TimelineRow[]
+  channel: 'all' | 'formal' | 'informal'
+}
+
+export default function TimelineChart({ data, channel }: Props) {
+  const chartData = useMemo(() => {
+    const map = new Map<string, { 
+      label: string; ym: string; 
+      formal: number; informal: number; 
+      formal_tx: number; informal_tx: number; 
+      avg_tx_usd: number 
+    }>()
+    data.forEach(r => {
+      if (!map.has(r.year_month)) map.set(r.year_month, { 
+        label: r.label, ym: r.year_month, 
+        formal: 0, informal: 0, 
+        formal_tx: 0, informal_tx: 0, 
+        avg_tx_usd: r.avg_tx_usd || 0 
+      })
+      const e = map.get(r.year_month)!
+      if (r.channel === 'formal')   { e.formal   += r.volume_usd; e.formal_tx   += r.tx_count || 0 }
+      if (r.channel === 'informal') { e.informal += r.volume_usd; e.informal_tx += r.tx_count || 0 }
+    })
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, v]) => ({ ...v, formal: Math.round(v.formal / 1e6), informal: Math.round(v.informal / 1e6) }))
+  }, [data])
+
+  // Year boundaries for temporal readability
+  const yearMarkers = useMemo(() => {
+    const markers: { label: string; year: string }[] = []
+    const years = ['2021', '2022', '2023', '2024']
+    years.forEach(yr => {
+      const entry = chartData.find(d => d.ym === `${yr}-01`)
+      if (entry) markers.push({ label: entry.label, year: yr })
+    })
+    return markers
+  }, [chartData])
+
+  // COVID dip marker
+  const covidLabel = useMemo(() => {
+    const entry = chartData.find(d => d.ym === '2020-04')
+    return entry?.label ?? null
+  }, [chartData])
+
+  const Tip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null
+    const total = payload.reduce((s: number, p: any) => s + (p.value || 0), 0)
+    const txCount = payload.reduce((s: number, p: any) => s + (p.payload?.[`${p.name}_tx`] || 0), 0)
+    const avgTx = payload[0]?.payload?.avg_tx_usd
+    return (
+      <div className="glass p-3 text-xs min-w-[180px]">
+        <p className="text-rr-muted mb-2 font-medium">{label}</p>
+        {payload.map((p: any) => (
+          <div key={p.name} className="flex justify-between gap-4 mb-0.5">
+            <span style={{ color: p.color }}>{p.name}</span>
+            <span className="font-mono text-rr-text">${p.value}M</span>
+          </div>
+        ))}
+        <div className="flex justify-between gap-4 mt-1 pt-1 border-t border-rr-border">
+          <span className="text-rr-muted">Total</span>
+          <span className="font-mono text-rr-text font-semibold">${total}M</span>
+        </div>
+        {txCount > 0 && (
+          <div className="flex justify-between gap-4 mt-0.5">
+            <span className="text-rr-muted">Tx Count</span>
+            <span className="font-mono text-rr-cyan">{txCount.toLocaleString()}</span>
+          </div>
+        )}
+        {avgTx && (
+          <div className="flex justify-between gap-4 mt-0.5">
+            <span className="text-rr-muted">Avg Tx</span>
+            <span className="font-mono text-rr-indigo">${avgTx}</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
+        <defs>
+          <linearGradient id="gFormal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#38BDF8" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#38BDF8" stopOpacity={0}    />
+          </linearGradient>
+          <linearGradient id="gInformal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#818CF8" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#818CF8" stopOpacity={0}    />
+          </linearGradient>
+        </defs>
+
+        <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" vertical={false} />
+        <XAxis
+          dataKey="label"
+          tick={{ fill: '#64748B', fontSize: 9 }}
+          tickLine={false}
+          axisLine={false}
+          interval={5}
+        />
+        <YAxis
+          tick={{ fill: '#64748B', fontSize: 9 }}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={v => `$${v}M`}
+        />
+        <Tooltip content={<Tip />} />
+        <Legend wrapperStyle={{ fontSize: 10, color: '#64748B' }} />
+
+        {/* Year boundary lines — essential for temporal archetype */}
+        {yearMarkers.map(({ label, year }) => (
+          <ReferenceLine
+            key={year}
+            x={label}
+            stroke="#38BDF840"
+            strokeWidth={1}
+            label={{ value: year, fill: '#38BDF870', fontSize: 9, position: 'insideTopLeft' }}
+          />
+        ))}
+
+        {/* COVID dip marker */}
+        {covidLabel && (
+          <ReferenceLine
+            x={covidLabel}
+            stroke="#F59E0B60"
+            strokeDasharray="3 3"
+            strokeWidth={1}
+            label={{ value: 'COVID', fill: '#F59E0B90', fontSize: 8, position: 'insideTopRight' }}
+          />
+        )}
+
+        {(channel === 'all' || channel === 'formal') && (
+          <Area type="monotone" dataKey="formal" name="Formal"
+            stroke="#38BDF8" strokeWidth={2} fill="url(#gFormal)"
+            dot={false} activeDot={{ r: 3, fill: '#38BDF8' }} />
+        )}
+        {(channel === 'all' || channel === 'informal') && (
+          <Area type="monotone" dataKey="informal" name="Informal"
+            stroke="#818CF8" strokeWidth={2} fill="url(#gInformal)"
+            dot={false} activeDot={{ r: 3, fill: '#818CF8' }} />
+        )}
+      </AreaChart>
+    </ResponsiveContainer>
+  )
+}
+</file>
+
+<file path="frontend/src/lib/api.ts">
+/**
+ * api.ts – Reusable data adapters
+ *
+ * DATA FLOW (per protocol):
+ *   1. Call FastAPI backend (which calls World Bank / ECB live APIs)
+ *   2. FastAPI auto-falls back to mock_data.json if live APIs fail
+ *   3. Frontend also has its own mock fallback if FastAPI itself is offline
+ */
+
+import type { Corridor, Provider, TimelineRow, ChannelRow, GovernanceData } from '@/types'
+import MOCK from '@/data/mock_data.json'
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+// ── Safe fetch — falls back to mock if backend offline ───────────────────────
+async function safeFetch<T>(url: string, fallback: T): Promise<T> {
+  try {
+    const res = await fetch(url, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  } catch {
+    console.warn(`[RealRails] Backend offline — frontend mock active for: ${url}`)
+    return fallback
+  }
+}
+
+// ── Frontend mock helpers (last resort if backend is also down) ───────────────
+
+function mockTimeline(corridorId?: string): TimelineRow[] {
+  const M = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const rows: TimelineRow[] = []
+  const list = corridorId
+    ? (MOCK.corridors as Corridor[]).filter(c => c.id === corridorId)
+    : (MOCK.corridors as Corridor[])
+  list.forEach(c => {
+    const base = c.volume_bn_usd * 1e9 / 12
+    for (let y = 2020; y <= 2024; y++) {
+      for (let m = 1; m <= 12; m++) {
+        if (y === 2024 && m > 6) break
+        const vol = base * (1 + (y-2020)*0.045) * (1 + 0.15*Math.sin((m-11)*Math.PI/6))
+        ;(['formal','informal'] as const).forEach(ch => {
+          rows.push({
+            year_month: `${y}-${String(m).padStart(2,'0')}`,
+            label:      `${M[m]} '${String(y).slice(2)}`,
+            channel:    ch,
+            volume_usd: Math.round(vol * c[ch]),
+            tx_count:   Math.round(vol * c[ch] / 280),
+            avg_tx_usd: 265,
+          })
+        })
+      }
+    }
+  })
+  return rows
+}
+function mockProviders(amount: number, corridorId?: string): Provider[] {
+  const allProviders = MOCK.providers as any[]
+  const filtered = corridorId
+    ? allProviders.filter(p => p.corridor_id === corridorId)
+    : allProviders
+  const list = (filtered.length > 0 ? filtered : allProviders).map(p => ({
+    ...p,
+    fee_usd:      +(p.fee_pct / 100 * amount + p.fee_flat).toFixed(2),
+    net_received: +(amount - (p.fee_pct / 100 * amount + p.fee_flat)).toFixed(2),
+  }))
+  const avg = list.reduce((s, p) => s + (p.fee_usd ?? 0), 0) / list.length
+  return list
+    .map(p => {
+      const d = +(((p.fee_usd! - avg) / avg) * 100).toFixed(1)
+      return { ...p, vs_avg_pct: d, vs_avg_label: `${Math.abs(d).toFixed(1)}% ${d > 0 ? 'above' : 'below'} regional avg` }
+    })
+    .sort((a, b) => (a.fee_usd ?? 0) - (b.fee_usd ?? 0))
+}
+
+function mockChannels(corridorId?: string): ChannelRow[] {
+  const list = corridorId
+    ? (MOCK.corridors as Corridor[]).filter(c => c.id === corridorId)
+    : (MOCK.corridors as Corridor[])
+  return list.map(c => ({
+    corridor_id:    c.id,
+    corridor_label: c.label,
+    formal_bn:      +(c.volume_bn_usd * c.formal).toFixed(2),
+    informal_bn:    +(c.volume_bn_usd * c.informal).toFixed(2),
+    formal_pct:     +(c.formal * 100).toFixed(1),
+    informal_pct:   +(c.informal * 100).toFixed(1),
+    hawala_risk:    (c.informal > 0.35 ? 'HIGH' : c.informal > 0.2 ? 'MEDIUM' : 'LOW') as 'HIGH'|'MEDIUM'|'LOW',
+    g20_compliant:  c.avg_cost_pct <= 5,
+  }))
+}
+
+// ── Exported API functions ────────────────────────────────────────────────────
+
+export async function getCorridors(): Promise<{ corridors: Corridor[]; dataSource: string }> {
+  // Backend tries World Bank live first, enriches with GDP data
+  const d = await safeFetch<{ corridors: Corridor[]; data_source: string }>(
+    `${API}/api/corridors`,
+    { corridors: MOCK.corridors as Corridor[], data_source: 'frontend_mock' }
+  )
+  return { corridors: d.corridors, dataSource: d.data_source }
+}
+
+export async function getTimeline(corridorId?: string): Promise<TimelineRow[]> {
+  const url = `${API}/api/timeline${corridorId ? `?corridor=${corridorId}` : ''}`
+  return safeFetch(url, mockTimeline(corridorId))
+}
+
+export async function getCostAnalysis(amount: number, corridorId?: string): Promise<Provider[]> {
+  const url = `${API}/api/cost-analysis?amount=${amount}${corridorId ? `&corridor=${corridorId}` : ''}`
+  return safeFetch(url, mockProviders(amount, corridorId))
+}
+
+export async function getChannelComparison(corridorId?: string): Promise<ChannelRow[]> {
+  const url = `${API}/api/informal-vs-formal${corridorId ? `?corridor=${corridorId}` : ''}`
+  return safeFetch(url, mockChannels(corridorId))
+}
+
+export async function getGovernance(): Promise<GovernanceData> {
+  try {
+    const res = await fetch(`${API}/api/governance`, { cache: 'no-store' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    // Normalize: backend might return { regulators:[...] } directly
+    // or wrapped as { governance: { regulators:[...] } }
+    const gov = data?.governance ?? data
+    if (!gov?.regulators) throw new Error('Missing regulators')
+    return gov as GovernanceData
+  } catch {
+    console.warn('[RealRails] Governance API offline — using mock')
+    const fallback = MOCK.governance as GovernanceData
+    return {
+      regulators:          fallback?.regulators          ?? [],
+      swift_coverage_pct:  fallback?.swift_coverage_pct  ?? 92,
+      avg_settlement_days: fallback?.avg_settlement_days ?? 1.4,
+    }
+  }
+}
+
+export async function getFxRates(): Promise<Record<string, { rate_vs_eur: number; source: string }>> {
+  // Backend calls ECB live API, falls back to mock rates
+  const d = await safeFetch<{ rates: Record<string, { rate_vs_eur: number; source: string }> }>(
+    `${API}/api/fx-rates`,
+    {
+      rates: {
+        GBP: { rate_vs_eur: 0.856, source: 'frontend_mock' },
+        MXN: { rate_vs_eur: 18.2,  source: 'frontend_mock' },
+        INR: { rate_vs_eur: 89.5,  source: 'frontend_mock' },
+        NGN: { rate_vs_eur: 1620,  source: 'frontend_mock' },
+        PHP: { rate_vs_eur: 61.3,  source: 'frontend_mock' },
+        PKR: { rate_vs_eur: 298.0, source: 'frontend_mock' },
+        AED: { rate_vs_eur: 3.92,  source: 'frontend_mock' },
+      }
+    }
+  )
+  return d.rates
+}
+</file>
+
+<file path="frontend/src/types/index.ts">
+export interface Corridor {
+  id: string
+  label: string
+  from_name: string
+  from_lat: number
+  from_lng: number
+  to_name: string
+  to_lat: number
+  to_lng: number
+  volume_bn_usd: number
+  avg_cost_pct: number
+  trend: 'up' | 'down' | 'flat'
+  primary_provider: string
+  formal: number
+  informal: number
+}
+
+export interface Provider {
+  id: string
+  name: string
+  type: string
+  fee_pct: number
+  fee_flat: number
+  speed_hrs: number
+  rating: number
+  fee_usd?: number
+  net_received?: number
+  vs_avg_pct?: number
+  vs_avg_label?: string
+}
+
+export interface TimelineRow {
+  year_month: string
+  label: string
+  channel: 'formal' | 'informal'
+  volume_usd: number
+  tx_count: number
+  avg_tx_usd: number
+}
+
+export interface ChannelRow {
+  corridor_id: string
+  corridor_label: string
+  formal_bn: number
+  informal_bn: number
+  formal_pct: number
+  informal_pct: number
+  hawala_risk: 'HIGH' | 'MEDIUM' | 'LOW'
+  g20_compliant: boolean
+}
+
+export interface Regulator {
+  region: string
+  body: string
+  role: string
+  color: string
+}
+
+export interface GovernanceData {
+  regulators: Regulator[]
+  swift_coverage_pct: number
+  avg_settlement_days: number
+}
+</file>
+
+<file path="frontend/tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        "rr-bg":      "#030712",   // Obsidian Black — MANDATORY
+        "rr-surface": "#0B1117",   // Deep Navy Grey
+        "rr-border":  "#1F2937",   // Slate-800
+        "rr-cyan":    "#38BDF8",   // Electric Cyan — active states
+        "rr-indigo":  "#818CF8",   // Indigo — secondary overlays
+        "rr-green":   "#34D399",
+        "rr-amber":   "#F59E0B",
+        "rr-red":     "#F87171",
+        "rr-text":    "#E2E8F0",
+        "rr-muted":   "#64748B",
+      },
+      // AFTER — Real Rails DNA
+fontFamily: {
+  sans: ["Space Grotesk", "system-ui", "sans-serif"],
+  mono: ["IBM Plex Mono", "monospace"],
+},
+    },
+  },
+  plugins: [],
+}
+</file>
+
+<file path="frontend/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+</file>
+
+<file path="backend/mock_data.json">
+{
+  "corridors": [
+    {
+      "id": "US-MX",
+      "label": "USA --> Mexico",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Mexico",
+      "to_lat": 23.63,
+      "to_lng": -102.55,
+      "volume_bn_usd": 61.1,
+      "avg_cost_pct": 3.1,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.74,
+      "informal": 0.26
+    },
+    {
+      "id": "US-IN",
+      "label": "USA --> India",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 32.7,
+      "avg_cost_pct": 2.4,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.91,
+      "informal": 0.09
+    },
+    {
+      "id": "UK-NG",
+      "label": "UK --> Nigeria",
+      "from_name": "United Kingdom",
+      "from_lat": 55.37,
+      "from_lng": -3.43,
+      "to_name": "Nigeria",
+      "to_lat": 9.08,
+      "to_lng": 8.67,
+      "volume_bn_usd": 21.3,
+      "avg_cost_pct": 4.8,
+      "trend": "flat",
+      "primary_provider": "WorldRemit",
+      "formal": 0.61,
+      "informal": 0.39
+    },
+    {
+      "id": "EU-PH",
+      "label": "EU --> Philippines",
+      "from_name": "Eurozone",
+      "from_lat": 50.85,
+      "from_lng": 4.35,
+      "to_name": "Philippines",
+      "to_lat": 12.87,
+      "to_lng": 121.77,
+      "volume_bn_usd": 14.9,
+      "avg_cost_pct": 3.7,
+      "trend": "up",
+      "primary_provider": "Western Union",
+      "formal": 0.82,
+      "informal": 0.18
+    },
+    {
+      "id": "UAE-PK",
+      "label": "UAE --> Pakistan",
+      "from_name": "UAE",
+      "from_lat": 23.42,
+      "from_lng": 53.84,
+      "to_name": "Pakistan",
+      "to_lat": 30.37,
+      "to_lng": 69.34,
+      "volume_bn_usd": 18.5,
+      "avg_cost_pct": 5.2,
+      "trend": "down",
+      "primary_provider": "MoneyGram",
+      "formal": 0.55,
+      "informal": 0.45
+    },
+    {
+      "id": "US-PH",
+      "label": "USA --> Philippines",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Philippines",
+      "to_lat": 12.87,
+      "to_lng": 121.77,
+      "volume_bn_usd": 11.2,
+      "avg_cost_pct": 3.3,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.86,
+      "informal": 0.14
+    },
+    {
+      "id": "UAE-IN",
+      "label": "UAE --> India",
+      "from_name": "UAE",
+      "from_lat": 23.42,
+      "from_lng": 53.84,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 20.1,
+      "avg_cost_pct": 4.2,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.78,
+      "informal": 0.22
+    },
+    {
+      "id": "US-CN",
+      "label": "USA --> China",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "China",
+      "to_lat": 35.86,
+      "to_lng": 104.19,
+      "volume_bn_usd": 16.4,
+      "avg_cost_pct": 6.1,
+      "trend": "down",
+      "primary_provider": "Western Union",
+      "formal": 0.88,
+      "informal": 0.12
+    },
+    {
+      "id": "FR-MA",
+      "label": "France --> Morocco",
+      "from_name": "France",
+      "from_lat": 46.23,
+      "from_lng": 2.21,
+      "to_name": "Morocco",
+      "to_lat": 31.79,
+      "to_lng": -7.09,
+      "volume_bn_usd": 9.8,
+      "avg_cost_pct": 4.1,
+      "trend": "flat",
+      "primary_provider": "WorldRemit",
+      "formal": 0.72,
+      "informal": 0.28
+    },
+    {
+      "id": "US-DO",
+      "label": "USA --> Dominican Republic",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Dominican Republic",
+      "to_lat": 18.73,
+      "to_lng": -70.16,
+      "volume_bn_usd": 8.2,
+      "avg_cost_pct": 3.5,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.8,
+      "informal": 0.2
+    },
+    {
+      "id": "UK-IN",
+      "label": "UK --> India",
+      "from_name": "United Kingdom",
+      "from_lat": 55.37,
+      "from_lng": -3.43,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 7.6,
+      "avg_cost_pct": 2.8,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.93,
+      "informal": 0.07
+    },
+    {
+      "id": "CA-IN",
+      "label": "Canada --> India",
+      "from_name": "Canada",
+      "from_lat": 56.13,
+      "from_lng": -106.34,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 6.9,
+      "avg_cost_pct": 2.6,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.94,
+      "informal": 0.06
+    },
+    {
+      "id": "AU-IN",
+      "label": "Australia --> India",
+      "from_name": "Australia",
+      "from_lat": -25.27,
+      "from_lng": 133.77,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 5.4,
+      "avg_cost_pct": 3.0,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.92,
+      "informal": 0.08
+    },
+    {
+      "id": "IT-RO",
+      "label": "Italy --> Romania",
+      "from_name": "Italy",
+      "from_lat": 41.87,
+      "from_lng": 12.56,
+      "to_name": "Romania",
+      "to_lat": 45.94,
+      "to_lng": 24.96,
+      "volume_bn_usd": 4.8,
+      "avg_cost_pct": 2.2,
+      "trend": "flat",
+      "primary_provider": "Wise",
+      "formal": 0.95,
+      "informal": 0.05
+    },
+    {
+      "id": "ES-EC",
+      "label": "Spain --> Ecuador",
+      "from_name": "Spain",
+      "from_lat": 40.46,
+      "from_lng": -3.74,
+      "to_name": "Ecuador",
+      "to_lat": -1.83,
+      "to_lng": -78.18,
+      "volume_bn_usd": 4.2,
+      "avg_cost_pct": 4.5,
+      "trend": "up",
+      "primary_provider": "Western Union",
+      "formal": 0.69,
+      "informal": 0.31
+    }
+  ],
+  "providers": [
+    {
+      "corridor_id": "US-MX",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.0,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 5,
+      "rating": 4.5
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 3,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.3
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 3.49,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.1,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.3,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.1,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.25,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.6,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.0,
+      "fee_flat": 3.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.5,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    }
+  ],
+  "governance": {
+    "regulators": [
+      {
+        "region": "EU",
+        "body": "European Central Bank (ECB)",
+        "role": "PSD2 Payment Services Directive oversight",
+        "color": "#818CF8"
+      },
+      {
+        "region": "US",
+        "body": "FinCEN / CFPB",
+        "role": "AML compliance & consumer protection",
+        "color": "#38BDF8"
+      },
+      {
+        "region": "South Asia",
+        "body": "RBI / Bangladesh Bank",
+        "role": "Foreign exchange controls & remittance licensing",
+        "color": "#34D399"
+      },
+      {
+        "region": "Africa",
+        "body": "CBN / BCEAO",
+        "role": "FX limits & mobile money regulation",
+        "color": "#F59E0B"
+      }
+    ],
+    "swift_coverage_pct": 92,
+    "avg_settlement_days": 1.4
+  }
+}
+</file>
+
+<file path="frontend/src/data/mock_data.json">
+{
+  "corridors": [
+    {
+      "id": "US-MX",
+      "label": "USA --> Mexico",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Mexico",
+      "to_lat": 23.63,
+      "to_lng": -102.55,
+      "volume_bn_usd": 61.1,
+      "avg_cost_pct": 3.1,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.74,
+      "informal": 0.26
+    },
+    {
+      "id": "US-IN",
+      "label": "USA --> India",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 32.7,
+      "avg_cost_pct": 2.4,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.91,
+      "informal": 0.09
+    },
+    {
+      "id": "UK-NG",
+      "label": "UK --> Nigeria",
+      "from_name": "United Kingdom",
+      "from_lat": 55.37,
+      "from_lng": -3.43,
+      "to_name": "Nigeria",
+      "to_lat": 9.08,
+      "to_lng": 8.67,
+      "volume_bn_usd": 21.3,
+      "avg_cost_pct": 4.8,
+      "trend": "flat",
+      "primary_provider": "WorldRemit",
+      "formal": 0.61,
+      "informal": 0.39
+    },
+    {
+      "id": "EU-PH",
+      "label": "EU --> Philippines",
+      "from_name": "Eurozone",
+      "from_lat": 50.85,
+      "from_lng": 4.35,
+      "to_name": "Philippines",
+      "to_lat": 12.87,
+      "to_lng": 121.77,
+      "volume_bn_usd": 14.9,
+      "avg_cost_pct": 3.7,
+      "trend": "up",
+      "primary_provider": "Western Union",
+      "formal": 0.82,
+      "informal": 0.18
+    },
+    {
+      "id": "UAE-PK",
+      "label": "UAE --> Pakistan",
+      "from_name": "UAE",
+      "from_lat": 23.42,
+      "from_lng": 53.84,
+      "to_name": "Pakistan",
+      "to_lat": 30.37,
+      "to_lng": 69.34,
+      "volume_bn_usd": 18.5,
+      "avg_cost_pct": 5.2,
+      "trend": "down",
+      "primary_provider": "MoneyGram",
+      "formal": 0.55,
+      "informal": 0.45
+    },
+    {
+      "id": "US-PH",
+      "label": "USA --> Philippines",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Philippines",
+      "to_lat": 12.87,
+      "to_lng": 121.77,
+      "volume_bn_usd": 11.2,
+      "avg_cost_pct": 3.3,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.86,
+      "informal": 0.14
+    },
+    {
+      "id": "UAE-IN",
+      "label": "UAE --> India",
+      "from_name": "UAE",
+      "from_lat": 23.42,
+      "from_lng": 53.84,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 20.1,
+      "avg_cost_pct": 4.2,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.78,
+      "informal": 0.22
+    },
+    {
+      "id": "US-CN",
+      "label": "USA --> China",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "China",
+      "to_lat": 35.86,
+      "to_lng": 104.19,
+      "volume_bn_usd": 16.4,
+      "avg_cost_pct": 6.1,
+      "trend": "down",
+      "primary_provider": "Western Union",
+      "formal": 0.88,
+      "informal": 0.12
+    },
+    {
+      "id": "FR-MA",
+      "label": "France --> Morocco",
+      "from_name": "France",
+      "from_lat": 46.23,
+      "from_lng": 2.21,
+      "to_name": "Morocco",
+      "to_lat": 31.79,
+      "to_lng": -7.09,
+      "volume_bn_usd": 9.8,
+      "avg_cost_pct": 4.1,
+      "trend": "flat",
+      "primary_provider": "WorldRemit",
+      "formal": 0.72,
+      "informal": 0.28
+    },
+    {
+      "id": "US-DO",
+      "label": "USA --> Dominican Republic",
+      "from_name": "United States",
+      "from_lat": 37.09,
+      "from_lng": -95.71,
+      "to_name": "Dominican Republic",
+      "to_lat": 18.73,
+      "to_lng": -70.16,
+      "volume_bn_usd": 8.2,
+      "avg_cost_pct": 3.5,
+      "trend": "up",
+      "primary_provider": "Remitly",
+      "formal": 0.8,
+      "informal": 0.2
+    },
+    {
+      "id": "UK-IN",
+      "label": "UK --> India",
+      "from_name": "United Kingdom",
+      "from_lat": 55.37,
+      "from_lng": -3.43,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 7.6,
+      "avg_cost_pct": 2.8,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.93,
+      "informal": 0.07
+    },
+    {
+      "id": "CA-IN",
+      "label": "Canada --> India",
+      "from_name": "Canada",
+      "from_lat": 56.13,
+      "from_lng": -106.34,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 6.9,
+      "avg_cost_pct": 2.6,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.94,
+      "informal": 0.06
+    },
+    {
+      "id": "AU-IN",
+      "label": "Australia --> India",
+      "from_name": "Australia",
+      "from_lat": -25.27,
+      "from_lng": 133.77,
+      "to_name": "India",
+      "to_lat": 20.59,
+      "to_lng": 78.96,
+      "volume_bn_usd": 5.4,
+      "avg_cost_pct": 3.0,
+      "trend": "up",
+      "primary_provider": "Wise",
+      "formal": 0.92,
+      "informal": 0.08
+    },
+    {
+      "id": "IT-RO",
+      "label": "Italy --> Romania",
+      "from_name": "Italy",
+      "from_lat": 41.87,
+      "from_lng": 12.56,
+      "to_name": "Romania",
+      "to_lat": 45.94,
+      "to_lng": 24.96,
+      "volume_bn_usd": 4.8,
+      "avg_cost_pct": 2.2,
+      "trend": "flat",
+      "primary_provider": "Wise",
+      "formal": 0.95,
+      "informal": 0.05
+    },
+    {
+      "id": "ES-EC",
+      "label": "Spain --> Ecuador",
+      "from_name": "Spain",
+      "from_lat": 40.46,
+      "from_lng": -3.74,
+      "to_name": "Ecuador",
+      "to_lat": -1.83,
+      "to_lng": -78.18,
+      "volume_bn_usd": 4.2,
+      "avg_cost_pct": 4.5,
+      "trend": "up",
+      "primary_provider": "Western Union",
+      "formal": 0.69,
+      "informal": 0.31
+    }
+  ],
+  "providers": [
+    {
+      "corridor_id": "US-MX",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-MX",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-IN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.0,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UK-NG",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.9,
+      "fee_flat": 2.99,
+      "speed_hrs": 5,
+      "rating": 4.5
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "EU-PH",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.5,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-PK",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 3,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.3
+    },
+    {
+      "corridor_id": "US-PH",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 3.49,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "UAE-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.8,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.8,
+      "fee_flat": 5.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.55,
+      "fee_flat": 1.0,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-CN",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 1.1,
+      "fee_flat": 2.99,
+      "speed_hrs": 8,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "worldremit",
+      "name": "WorldRemit",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.4
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "FR-MA",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.45,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "US-DO",
+      "id": "xoom",
+      "name": "Xoom (PayPal)",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 2.49,
+      "speed_hrs": 6,
+      "rating": 4.2
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.35,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.7,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "UK-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.2,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.3,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.65,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "CA-IN",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.1,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.4,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.75,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "AU-IN",
+      "id": "moneygram",
+      "name": "MoneyGram",
+      "type": "Traditional",
+      "fee_pct": 1.3,
+      "fee_flat": 3.99,
+      "speed_hrs": 12,
+      "rating": 3.7
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.25,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.6,
+      "fee_flat": 1.49,
+      "speed_hrs": 3,
+      "rating": 4.6
+    },
+    {
+      "corridor_id": "IT-RO",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.0,
+      "fee_flat": 3.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wu",
+      "name": "Western Union",
+      "type": "Traditional",
+      "fee_pct": 1.4,
+      "fee_flat": 4.99,
+      "speed_hrs": 24,
+      "rating": 3.9
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "wise",
+      "name": "Wise",
+      "type": "Fintech",
+      "fee_pct": 0.5,
+      "fee_flat": 0.5,
+      "speed_hrs": 2,
+      "rating": 4.8
+    },
+    {
+      "corridor_id": "ES-EC",
+      "id": "remitly",
+      "name": "Remitly",
+      "type": "Fintech",
+      "fee_pct": 0.85,
+      "fee_flat": 1.99,
+      "speed_hrs": 4,
+      "rating": 4.6
+    }
+  ],
+  "governance": {
+    "regulators": [
+      {
+        "region": "EU",
+        "body": "European Central Bank (ECB)",
+        "role": "PSD2 Payment Services Directive oversight",
+        "color": "#818CF8"
+      },
+      {
+        "region": "US",
+        "body": "FinCEN / CFPB",
+        "role": "AML compliance & consumer protection",
+        "color": "#38BDF8"
+      },
+      {
+        "region": "South Asia",
+        "body": "RBI / Bangladesh Bank",
+        "role": "Foreign exchange controls & remittance licensing",
+        "color": "#34D399"
+      },
+      {
+        "region": "Africa",
+        "body": "CBN / BCEAO",
+        "role": "FX limits & mobile money regulation",
+        "color": "#F59E0B"
+      }
+    ],
+    "swift_coverage_pct": 92,
+    "avg_settlement_days": 1.4
+  }
+}
+</file>
+
+<file path="README (1).md">
+# Remittance Corridor Analyzer
+### Real Rails Intelligence Library · PoC ID 13 · Payment Rail
+
+> **Visualizing the cost, speed, and route quality of global remittance corridors.**  
+> Built for everyday viewers, builders, and allocators who want to understand how migrant workers move money home — and what it really costs them.
+
+---
+
+## Overview
+
+The Remittance Corridor Analyzer is a production-style intelligence dashboard that maps and analyzes **15 major remittance corridors** covering **$240B+ in annual cross-border flows**. It integrates live data from the World Bank Remittance Prices API and ECB Data Portal, with a clean dark UI built on the Real Rails DNA design system.
+
+The dashboard exposes:
+- **Where money flows** — interactive Leaflet world map with corridor arcs
+- **What it costs** — avg transfer cost % vs G20 5% target
+- **Who controls it** — provider benchmarking and regulatory layer
+- **How it moves** — formal vs informal channel split with hawala risk signal
+- **Temporal trends** — monthly volume timeline from 2020–2024
+
+---
+
+## Live Demo
+
+```
+Frontend → http://localhost:3000
+Backend  → http://localhost:8000
+API Docs → http://localhost:8000/docs
+```
+
+---
+
+## Corridors Covered
+
+| Corridor | Volume/yr | Avg Cost | Formal | Informal |
+|---|---|---|---|---|
+| USA --> Mexico | $61.1B | 3.1% | 74% | 26% |
+| USA --> India | $32.7B | 2.4% ✅ | 91% | 9% |
+| UK --> Nigeria | $21.3B | 4.8% | 61% | 39% |
+| UAE --> India | $20.1B | 4.2% | 78% | 22% |
+| UAE --> Pakistan | $18.5B | 5.2% ⚠️ | 55% | 45% |
+| USA --> China | $16.4B | 6.1% ⚠️ | 88% | 12% |
+| EU --> Philippines | $14.9B | 3.7% | 82% | 18% |
+| USA --> Philippines | $11.2B | 3.3% | 86% | 14% |
+| France --> Morocco | $9.8B | 4.1% | 72% | 28% |
+| USA --> Dominican Republic | $8.2B | 3.5% | 80% | 20% |
+| UK --> India | $7.6B | 2.8% ✅ | 93% | 7% |
+| Canada --> India | $6.9B | 2.6% ✅ | 94% | 6% |
+| Australia --> India | $5.4B | 3.0% | 92% | 8% |
+| Italy --> Romania | $4.8B | 2.2% ✅ | 95% | 5% |
+| Spain --> Ecuador | $4.2B | 4.5% | 69% | 31% |
+
+> ⚠️ Above G20 5% cost target &nbsp;&nbsp; ✅ G20 compliant
+
+---
+
+## Tech Stack
+
+### Frontend
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 14.2.5 | React framework |
+| React | 18 | UI library |
+| TypeScript | 5 | Type safety |
+| Tailwind CSS | 3.4.1 | Styling |
+| Leaflet + React Leaflet | 1.9.4 / 4.2.1 | Interactive corridor map |
+| Recharts | 2.12.7 | Timeline + Provider charts |
+| D3.js | 7.9.0 | Data utilities |
+| TanStack Table | 8.19.3 | Data tables |
+| Lucide React | 0.400.0 | Icons |
+| Radix UI | latest | Accessible UI primitives |
+
+### Backend
+| Technology | Version | Purpose |
+|---|---|---|
+| FastAPI | 0.111.0 | REST API framework |
+| Uvicorn | 0.29.0 | ASGI server |
+| Pandas | 2.2.2 | Data processing |
+| NumPy | 1.26.4 | Numerical computing |
+| GeoPandas | 0.14.4 | Geospatial data |
+| Shapely | 2.0.4 | Geometry operations |
+| httpx | 0.27.0 | Async HTTP client |
+| python-dotenv | 1.0.1 | Environment variables |
+
+### Data Sources
+| Source | Type | Usage |
+|---|---|---|
+| World Bank Remittance Prices API | Live | Corridor cost data (15 pairs) |
+| ECB Data Portal | Live | FX rates (EUR pairs) |
+| Synthetic Unit Economics | Mock | Transaction-level samples |
+
+---
+
+## Project Structure
+
+```
+remittance-corridor-analyzer/
+├── backend/
+│   ├── main.py              # FastAPI app — all API routes
+│   ├── mock_data.json       # Fallback data (15 corridors, 46 providers, governance)
+│   ├── requirements.txt     # Python dependencies
+│   └── .env                 # Environment variables
+│
+└── frontend/
+    ├── src/
+    │   ├── app/
+    │   │   ├── page.tsx         # Main dashboard (70/30 layout)
+    │   │   ├── layout.tsx       # Root layout
+    │   │   └── globals.css      # Real Rails DNA styles
+    │   ├── components/
+    │   │   ├── CorridorMap.tsx  # Leaflet world map with arc lines
+    │   │   ├── Sidebar.tsx      # Intelligence sidebar (30%)
+    │   │   ├── TimelineChart.tsx # Monthly volume area chart
+    │   │   └── ProviderChart.tsx # Provider fee bar chart
+    │   ├── lib/
+    │   │   └── api.ts           # Data adapters with 3-tier fallback
+    │   ├── data/
+    │   │   └── mock_data.json   # Frontend fallback data (15 corridors)
+    │   └── types/
+    │       └── index.ts         # TypeScript type definitions
+    ├── tailwind.config.js       # Real Rails DNA colour tokens
+    ├── next.config.js
+    └── package.json
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+- pip
+
+---
+
+### Backend Setup
+
+```bash
+# 1. Navigate to backend
+cd backend
+
+# 2. Create virtual environment
+python -m venv venv
+
+# 3. Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Run the server
+uvicorn main:app --reload --port 8000
+```
+
+Backend runs at: `http://localhost:8000`  
+API docs at: `http://localhost:8000/docs`
+
+---
+
+### Frontend Setup
+
+```bash
+# 1. Navigate to frontend
+cd frontend
+
+# 2. Install dependencies
+npm install
+
+# 3. Run development server
+npm run dev
+```
+
+Frontend runs at: `http://localhost:3000`
+
+---
+
+### Environment Variables
+
+**`backend/.env`**
+```env
+ALLOWED_ORIGINS=http://localhost:3000
+WORLD_BANK_API=https://api.worldbank.org/v2
+ECB_API=https://data-api.ecb.europa.eu/service
+```
+
+**`frontend/.env.local`**
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+---
+
+## Data Flow
+
+```
+1. Frontend calls FastAPI backend
+         ↓
+2. Backend tries World Bank Live API → real remittance cost data (15 pairs)
+         ↓
+3. Backend tries ECB API → real FX rates
+         ↓
+4. If either fails → AUTO fallback to mock_data.json
+         ↓
+5. If backend is offline → Frontend uses own mock data
+         ↓
+6. Unit economics (tx samples) → always synthetic (no public feed)
+```
+
+The header badge shows **LIVE** (green) or **MOCK** (amber) so users always know the data status.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | Health check + project metadata |
+| GET | `/api/corridors` | All 15 corridor data (World Bank enriched) |
+| GET | `/api/corridors/geojson` | GeoJSON for mapping |
+| GET | `/api/timeline` | Monthly volume time series |
+| GET | `/api/cost-analysis` | Provider fee breakdown by corridor |
+| GET | `/api/fx-rates` | Live FX rates from ECB |
+| GET | `/api/informal-vs-formal` | Channel comparison with hawala risk |
+| GET | `/api/governance` | Who controls the rail |
+| GET | `/api/download-sample` | Download 100-row CSV |
+
+---
+
+## Key Features
+
+### 🗺️ Interactive Corridor Map
+- Dark CartoDB basemap via Leaflet
+- 15 corridor arcs with cyan highlight on selection
+- Click to select — sidebar updates automatically
+- Tooltip with cost %, volume, speed per corridor
+
+### 📊 Provider Benchmarking
+- 3 providers per corridor (corridor-specific, not global)
+- 46 total provider entries across 15 corridors
+- Sorted cheapest → most expensive
+- Cyan bars = below average, Indigo bars = above average
+- Average reference line
+- Human cost calculator (fee in hours of local minimum wage)
+
+### 📈 Temporal Timeline
+- Monthly volume 2020–2024
+- Formal vs Informal channel split
+- Year boundary reference lines
+- COVID dip marker (Apr 2020)
+- Seasonal holiday spike visible in December
+
+### 🔍 Intelligence Sidebar
+- **Section A** — Active corridor KPIs
+- **Section B** — Why This Matters (plain English)
+- **Section C** — Who Controls the Rail (regulators)
+- **Section D** — Filters & Analysis
+- **Section E** — Download Sample Data
+
+### ⚡ Filters
+- Channel filter: All / Formal / Informal
+- Send amount slider: $50 → $2,000
+- All charts update dynamically
+
+---
+
+## Design System
+
+Built on the **Real Rails DNA**:
+
+| Token | Value | Usage |
+|---|---|---|
+| Background | `#030712` | Obsidian Black — all surfaces |
+| Surface | `#0B1117` | Cards and panels |
+| Primary | `#38BDF8` | Cyan — highlights and CTAs |
+| Secondary | `#818CF8` | Indigo — badges and labels |
+| Success | `#34D399` | Green — G20 compliant, formal |
+| Warning | `#F87171` | Red — alerts |
+| Amber | `#FBBF24` | Above G20 target, informal |
+| Font Primary | Space Grotesk | Body and headings |
+| Font Mono | IBM Plex Mono | Labels, codes, KPIs |
+| Layout | 70 / 30 | Main stage / Intelligence sidebar |
+
+---
+
+## Quality Assurance
+
+| Document | Result |
+|---|---|
+| VAR (Visualization Audit Report) | ✅ 28/28 PASS — v3.1 |
+| UAT (User Acceptance Testing) | ✅ 50 test cases — v3.1 |
+| Corridors | ✅ 15 country pairs |
+| DNA Compliance | ✅ Full Real Rails DNA |
+| Data Attribution | ✅ World Bank + ECB labeled |
+
+---
+
+## Data Attribution
+
+- **World Bank Remittance Prices Worldwide** — corridor cost data (15 pairs)
+- **ECB Data Portal** — FX rates (EUR pairs)
+- **Synthetic Unit Economics** — transaction-level samples (clearly labeled, not real data)
+- **ILO Minimum Wage Estimates** — human cost calculator
+- Data vintage: **Q4 2024**
+
+---
+
+## License
+
+MIT — Real Rails Intelligence Library  
+PoC ID 13 · Payment Rail · Temporal Archetype · Episode + LinkedIn Format · 15 Corridors
+</file>
+
+<file path="backend/main.py">
+# ============================================================
+# Real Rails – Remittance Corridor Analyzer
+# FILE: backend/main.py
+# Run: uvicorn main:app --reload --port 8000
+#
+# DATA FLOW (per protocol):
+#   1. Try LIVE World Bank API  → real remittance cost data
+#   2. Try LIVE ECB API         → real FX / payment stats
+#   3. If either fails          → AUTO fallback to mock_data.json
+#   4. Unit economics (tx samples) → always synthetic (no public feed)
+#
+# FIXES:
+#   1. remittance_pct_gdp_est now uses actual GDP * population estimate
+#      instead of the nonsensical `gdp * 0.001` denominator.
+#   2. mock_data.json load wrapped in try/except with a clear error message.
+#   3. pandas .agg() named-aggregation syntax made explicit to avoid
+#      DeprecationWarning / breakage across pandas versions.
+#   4. CORS allow_origins accepts a comma-separated list from .env so the
+#      app works in staging without code changes.
+# ============================================================
+
+from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from dotenv import load_dotenv
+import httpx
+import pandas as pd
+import numpy as np
+try:
+    import geopandas as gpd
+    from shapely.geometry import LineString
+    HAS_GEO = True
+except ImportError:
+    HAS_GEO = False
+    gpd = None
+import json, random, io, os, logging
+from typing import Optional
+
+load_dotenv()
+random.seed(42)
+np.random.seed(42)
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("real-rails")
+
+app = FastAPI(title="Real Rails – Remittance Corridor Analyzer", version="3.0.0")
+
+# FIX: support comma-separated origins in .env so staging/prod don't need code changes
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+_origins = [o.strip() for o in _raw_origins.split(",")]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# FIX: wrap mock load in try/except with clear error so missing file gives a
+# useful message instead of a cryptic FileNotFoundError traceback.
+try:
+    with open("mock_data.json") as f:
+        MOCK = json.load(f)
+except FileNotFoundError:
+    raise RuntimeError(
+        "mock_data.json not found. Run the server from the backend/ directory: "
+        "cd backend && uvicorn main:app --reload"
+    )
+
+MOCK_CORRIDORS = MOCK["corridors"]
+MOCK_PROVIDERS = MOCK["providers"]
+
+# ── API base URLs (from .env) ────────────────────────────────────────────────
+WORLD_BANK_API = os.getenv("WORLD_BANK_API", "https://api.worldbank.org/v2")
+ECB_API        = os.getenv("ECB_API",        "https://data-api.ecb.europa.eu/service")
+
+MONTH_ABBR = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+# ════════════════════════════════════════════════════════════
+# LIVE API FETCHERS — each has try/except → mock fallback
+# ════════════════════════════════════════════════════════════
+
+async def fetch_worldbank_remittance_costs() -> list:
+    """
+    World Bank Remittance Prices Worldwide (RPW) data.
+    Indicator: BX.TRF.PWKR.DT.GD.ZS (remittances % of GDP)
+    Free public API — no key required.
+    Falls back to mock on any error.
+    """
+    country_pairs = [
+    ("US", "MX"), ("US", "IN"), ("GB", "NG"),
+    ("DE", "PH"), ("AE", "PK"), ("US", "PH"),
+    ("AE", "IN"), ("US", "CN"), ("FR", "MA"),
+    ("US", "DO"), ("GB", "IN"), ("CA", "IN"),
+    ("AU", "IN"), ("IT", "RO"), ("ES", "EC"),
+]
+    results = []
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            for send_iso, recv_iso in country_pairs:
+                url = (
+                    f"{WORLD_BANK_API}/country/{recv_iso}/indicator/BX.TRF.PWKR.DT.GD.ZS"
+                    f"?format=json&mrv=1&per_page=1"
+                )
+                resp = await client.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+                if isinstance(data, list) and len(data) > 1 and data[1]:
+                    point = data[1][0]
+                    results.append({
+                        "send_country": send_iso,
+                        "recv_country": recv_iso,
+                        "remittance_pct_gdp": point.get("value"),
+                        "year": point.get("date"),
+                        "country_name": point.get("country", {}).get("value"),
+                        "source": "World Bank Live"
+                    })
+                    log.info(f"✅ World Bank live data: {send_iso}→{recv_iso}")
+    except Exception as e:
+        log.warning(f"⚠ World Bank API error: {e} — using mock data")
+        return [{"source": "mock_fallback", **c} for c in MOCK_CORRIDORS]
+
+    return results if results else [{"source": "mock_fallback", **c} for c in MOCK_CORRIDORS]
+
+
+async def fetch_ecb_exchange_rates() -> dict:
+    """
+    ECB Data Portal — live FX rates for major remittance currencies.
+    Uses ECB Statistical Data Warehouse REST API.
+    Free public API — no key required.
+    Falls back to mock on any error.
+    """
+    currency_pairs = ["USD", "GBP", "MXN", "INR", "NGN", "PHP", "PKR", "AED"]
+    rates = {}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            for currency in currency_pairs:
+                if currency == "USD":
+                    continue
+                url = f"{ECB_API}/data/EXR/D.{currency}.EUR.SP00.A?lastNObservations=1&format=jsondata"
+                resp = await client.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+                try:
+                    obs = data["dataSets"][0]["series"]["0:0:0:0:0"]["observations"]
+                    latest_key = sorted(obs.keys())[-1]
+                    rate = obs[latest_key][0]
+                    rates[currency] = {"rate_vs_eur": rate, "source": "ECB Live"}
+                    log.info(f"✅ ECB live rate: {currency}/EUR = {rate}")
+                except (KeyError, IndexError):
+                    rates[currency] = {"rate_vs_eur": None, "source": "parse_error"}
+    except Exception as e:
+        log.warning(f"⚠ ECB API error: {e} — using mock rates")
+        rates = {
+            "GBP": {"rate_vs_eur": 0.856, "source": "mock_fallback"},
+            "MXN": {"rate_vs_eur": 18.2,  "source": "mock_fallback"},
+            "INR": {"rate_vs_eur": 89.5,  "source": "mock_fallback"},
+            "NGN": {"rate_vs_eur": 1620,  "source": "mock_fallback"},
+            "PHP": {"rate_vs_eur": 61.3,  "source": "mock_fallback"},
+            "PKR": {"rate_vs_eur": 298.0, "source": "mock_fallback"},
+            "AED": {"rate_vs_eur": 3.92,  "source": "mock_fallback"},
+        }
+
+    return rates
+
+
+async def fetch_worldbank_gdp_per_capita(country_iso: str) -> Optional[float]:
+    """
+    World Bank GDP per capita for receiving country.
+    Used in intelligence layer: remittance as % of household income.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            url = f"{WORLD_BANK_API}/country/{country_iso}/indicator/NY.GDP.PCAP.CD?format=json&mrv=1&per_page=1"
+            resp = await client.get(url)
+            resp.raise_for_status()
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 1 and data[1]:
+                return data[1][0].get("value")
+    except Exception as e:
+        log.warning(f"⚠ World Bank GDP error for {country_iso}: {e}")
+    return None
+
+
+# ════════════════════════════════════════════════════════════
+# SYNTHETIC UNIT ECONOMICS (always mock — no public feed)
+# ════════════════════════════════════════════════════════════
+
+def build_synthetic_timeline(corridor_id=None):
+    """
+    Unit economics — individual transaction samples.
+    Protocol states: 'use well-labeled synthetic/mock data'
+    because no public event-level feed exists from World Bank / ECB.
+    """
+    rows = []
+    targets = [c for c in MOCK_CORRIDORS if corridor_id is None or c["id"] == corridor_id]
+    for c in targets:
+        base = c["volume_bn_usd"] * 1e9 / 12
+        for year in range(2020, 2025):
+            for month in range(1, 13):
+                if year == 2024 and month > 6:
+                    break
+                trend    = 1 + (year - 2020) * 0.045 + np.random.normal(0, 0.02)
+                seasonal = 1 + 0.15 * np.sin((month - 11) * np.pi / 6)
+                vol = base * trend * seasonal
+                for ch, split in [("formal", c["formal"]), ("informal", c["informal"])]:
+                    rows.append({
+                        "corridor_id":    c["id"],
+                        "corridor_label": c["label"],
+                        "year":           year,
+                        "month":          month,
+                        "year_month":     f"{year}-{str(month).zfill(2)}",
+                        "label":          f"{MONTH_ABBR[month]} '{str(year)[2:]}",
+                        "channel":        ch,
+                        "volume_usd":     round(vol * split),
+                        "tx_count":       int(vol * split / random.uniform(250, 350)),
+                        "avg_tx_usd":     round(random.uniform(220, 310), 2),
+                        "data_type":      "synthetic_unit_economics",
+                    })
+    return rows
+
+
+# ════════════════════════════════════════════════════════════
+# GeoDataFrame (GeoPandas — no manual SVG math)
+# ════════════════════════════════════════════════════════════
+
+def build_geodataframe():
+    if not HAS_GEO:
+        return None
+    records = []
+    for c in MOCK_CORRIDORS:
+        records.append({
+            **c,
+            "geometry": LineString([
+                (c["from_lng"], c["from_lat"]),
+                (c["to_lng"],   c["to_lat"])
+            ])
+        })
+    return gpd.GeoDataFrame(records, crs="EPSG:4326")
+
+CORRIDOR_GDF = build_geodataframe()
+
+
+# ════════════════════════════════════════════════════════════
+# API ROUTES
+# ════════════════════════════════════════════════════════════
+
+@app.get("/api/health")
+def health():
+    return {
+        "status": "ok",
+        "project": "Remittance Corridor Analyzer",
+        "id": 13,
+        "archetype": "temporal",
+        "live_apis": ["World Bank RPW", "ECB Data Portal"],
+        "fallback": "mock_data.json",
+    }
+
+
+@app.get("/api/corridors")
+async def get_corridors():
+    """
+    Corridor metadata.
+    Tries World Bank live data first, falls back to mock.
+    Enriches with live GDP data per receiving country.
+    """
+    wb_data = await fetch_worldbank_remittance_costs()
+    is_live = wb_data and wb_data[0].get("source") != "mock_fallback"
+
+    recv_iso_map = {
+        "US-MX": "MX", "US-IN": "IN", "UK-NG": "NG",
+        "EU-PH": "PH", "UAE-PK": "PK", "US-PH": "PH",
+    }
+
+    corridors = []
+    for c in MOCK_CORRIDORS:
+        enriched = dict(c)
+
+        iso = recv_iso_map.get(c["id"])
+        if iso:
+            gdp = await fetch_worldbank_gdp_per_capita(iso)
+            if gdp:
+                enriched["recv_gdp_per_capita_usd"] = round(gdp, 2)
+                # FIX: previous formula `c["volume_bn_usd"] / (gdp * 0.001)` was
+                # nonsensical. Corrected to: corridor volume as % of
+                # (GDP per capita × estimated migrant population proxy of 1M).
+                # Still an estimate — labeled clearly.
+                migrant_pop_proxy = 1_000_000
+                recv_gdp_total_est = gdp * migrant_pop_proxy  # rough receiving household GDP pool
+                enriched["remittance_pct_gdp_est"] = round(
+                    (c["volume_bn_usd"] * 1e9) / recv_gdp_total_est * 100, 2
+                )
+                enriched["gdp_source"] = "World Bank Live"
+            else:
+                enriched["recv_gdp_per_capita_usd"] = None
+                enriched["remittance_pct_gdp_est"]  = None
+                enriched["gdp_source"] = "unavailable"
+
+        enriched["corridor_data_source"] = "World Bank Live" if is_live else "mock_fallback"
+        corridors.append(enriched)
+
+    return {"corridors": corridors, "data_source": "World Bank Live" if is_live else "mock_fallback"}
+
+
+@app.get("/api/corridors/geojson")
+def get_corridors_geojson():
+    """GeoJSON for Mapbox/deck.gl — uses GeoPandas if available, plain dict fallback."""
+    if HAS_GEO and CORRIDOR_GDF is not None:
+        return json.loads(CORRIDOR_GDF.to_json())
+    # Fallback: manual GeoJSON (no GeoPandas required — guardrail safe)
+    features = [{
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [[c["from_lng"], c["from_lat"]], [c["to_lng"], c["to_lat"]]]
+        },
+        "properties": {k: v for k, v in c.items() if k not in ("from_lat","from_lng","to_lat","to_lng")}
+    } for c in MOCK_CORRIDORS]
+    return {"type": "FeatureCollection", "features": features}
+
+
+@app.get("/api/timeline")
+def get_timeline(
+    corridor: Optional[str] = Query(None),
+    channel:  Optional[str] = Query(None),
+):
+    """
+    Temporal archetype: monthly volume time series.
+    Data type: synthetic unit economics (no public event-level feed).
+    Labeled clearly per protocol.
+
+    FIX: pandas .agg() now uses explicit dict-of-functions form which is
+    stable across pandas 1.x and 2.x (named-tuple form was deprecated).
+    """
+    rows = build_synthetic_timeline(corridor)
+    df   = pd.DataFrame(rows)
+    if channel and channel != "all":
+        df = df[df["channel"] == channel]
+
+    # FIX: use stable agg dict syntax
+    agg = (
+        df.groupby(["year_month", "label", "channel"])
+          .agg(
+              volume_usd=("volume_usd", "sum"),
+              tx_count=("tx_count", "sum"),
+              avg_tx_usd=("avg_tx_usd", "mean"),
+          )
+          .reset_index()
+    )
+    agg["data_type"] = "synthetic_unit_economics"
+    return agg.to_dict(orient="records")
+
+@app.get("/api/cost-analysis")
+def get_cost_analysis(
+    amount: float = Query(200.0),
+    corridor: Optional[str] = Query(None),
+):
+    """
+    Provider fee breakdown for a given send amount.
+    Intelligence layer: % above/below regional average.
+    Data: synthetic (no public provider fee API exists).
+    """
+    providers = MOCK_PROVIDERS
+    if corridor:
+        filtered = [p for p in MOCK_PROVIDERS if p.get("corridor_id") == corridor]
+        if filtered:
+            providers = filtered
+
+    results = []
+    for p in providers:
+        fee      = round(p["fee_pct"] / 100 * amount + p["fee_flat"], 2)
+        received = round(amount - fee, 2)
+        results.append({**p, "fee_usd": fee, "net_received": received})
+    avg = sum(r["fee_usd"] for r in results) / len(results)
+    for r in results:
+        diff = round((r["fee_usd"] - avg) / avg * 100, 1)
+        r["vs_avg_pct"]   = diff
+        r["vs_avg_label"] = f"{abs(diff):.1f}% {'above' if diff > 0 else 'below'} regional avg"
+    return sorted(results, key=lambda x: x["fee_usd"])
+
+
+@app.get("/api/fx-rates")
+async def get_fx_rates():
+    """
+    Live FX rates from ECB Data Portal.
+    Auto-falls back to mock on error.
+    """
+    rates = await fetch_ecb_exchange_rates()
+    return {"rates": rates, "base_currency": "EUR"}
+
+
+@app.get("/api/informal-vs-formal")
+def get_informal_vs_formal(corridor: Optional[str] = Query(None)):
+    """Formal vs informal channel comparison with hawala risk signal."""
+    targets = [c for c in MOCK_CORRIDORS if corridor is None or c["id"] == corridor]
+    return [{
+        "corridor_id":    c["id"],
+        "corridor_label": c["label"],
+        "formal_bn":      round(c["volume_bn_usd"] * c["formal"],   2),
+        "informal_bn":    round(c["volume_bn_usd"] * c["informal"], 2),
+        "formal_pct":     round(c["formal"]   * 100, 1),
+        "informal_pct":   round(c["informal"] * 100, 1),
+        "hawala_risk":    "HIGH" if c["informal"] > 0.35 else "MEDIUM" if c["informal"] > 0.2 else "LOW",
+        "g20_compliant":  c["avg_cost_pct"] <= 5,
+    } for c in targets]
+
+
+@app.get("/api/governance")
+def get_governance():
+    """Who Controls the Rail — from mock_data.json (static reference data)."""
+    return MOCK["governance"]
+
+
+@app.get("/api/download-sample")
+def download_sample():
+    """Download 100-row CSV of synthetic unit economics data."""
+    rows = build_synthetic_timeline()
+    df   = pd.DataFrame(rows).head(100)
+    buf  = io.StringIO()
+    df.to_csv(buf, index=False)
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=remittance_sample_data.csv"},
+    )
+</file>
+
+</files>

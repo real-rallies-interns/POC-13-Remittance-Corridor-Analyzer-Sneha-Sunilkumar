@@ -5,6 +5,13 @@
  *   1. Call FastAPI backend (which calls World Bank / ECB live APIs)
  *   2. FastAPI auto-falls back to mock_data.json if live APIs fail
  *   3. Frontend also has its own mock fallback if FastAPI itself is offline
+ *
+ * NEW ENDPOINTS (v4.0):
+ *   - getHeatmap()           → Corridor Heatmap data
+ *   - getCostIncomeOverlay() → Cost vs Income Overlay
+ *   - getPlayerBreakdown()   → Player Breakdown (Fintech/MTO/Bank)
+ *   - getFXMargin()          → FX Margin Visualizer
+ *   - getVolumeFlow()        → Volume Flow Tracker
  */
 
 import type { Corridor, Provider, TimelineRow, ChannelRow, GovernanceData } from '@/types'
@@ -24,7 +31,7 @@ async function safeFetch<T>(url: string, fallback: T): Promise<T> {
   }
 }
 
-// ── Frontend mock helpers (last resort if backend is also down) ───────────────
+// ── Frontend mock helpers ─────────────────────────────────────────────────────
 
 function mockTimeline(corridorId?: string): TimelineRow[] {
   const M = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -53,10 +60,11 @@ function mockTimeline(corridorId?: string): TimelineRow[] {
   })
   return rows
 }
+
 function mockProviders(amount: number, corridorId?: string): Provider[] {
   const allProviders = MOCK.providers as any[]
   const filtered = corridorId
-    ? allProviders.filter(p => p.corridor_id === corridorId)
+    ? allProviders.filter((p: any) => p.corridor_id === corridorId)
     : allProviders
   const list = (filtered.length > 0 ? filtered : allProviders).map(p => ({
     ...p,
@@ -88,10 +96,131 @@ function mockChannels(corridorId?: string): ChannelRow[] {
   }))
 }
 
-// ── Exported API functions ────────────────────────────────────────────────────
+// ── Mock fallbacks for new features ──────────────────────────────────────────
+
+function mockHeatmap() {
+  return (MOCK.corridors as any[]).map(c => ({
+    corridor_id:    c.id,
+    corridor_label: c.label,
+    from_name:      c.from_name,
+    to_name:        c.to_name,
+    from_lat:       c.from_lat,
+    from_lng:       c.from_lng,
+    to_lat:         c.to_lat,
+    to_lng:         c.to_lng,
+    volume_bn_usd:  c.volume_bn_usd,
+    heat_intensity: c.heat_intensity ?? 0.5,
+    avg_cost_pct:   c.avg_cost_pct,
+    heat_color:     c.heat_intensity >= 0.8 ? '#F87171' :
+                    c.heat_intensity >= 0.6 ? '#FBBF24' :
+                    c.heat_intensity >= 0.4 ? '#38BDF8' : '#818CF8',
+  }))
+}
+
+function mockCostIncome() {
+  return (MOCK.corridors as any[]).map(c => ({
+    corridor_id:           c.id,
+    corridor_label:        c.label,
+    avg_cost_pct:          c.avg_cost_pct,
+    sender_avg_income_usd: c.sender_avg_income_usd ?? 35000,
+    fee_pct_of_income:     c.fee_pct_of_income ?? 10,
+    g20_compliant:         c.avg_cost_pct <= 5,
+    income_bracket:        c.sender_avg_income_usd >= 50000 ? 'High Income' :
+                           c.sender_avg_income_usd >= 35000 ? 'Middle Income' : 'Lower Income',
+    burden_level:          c.fee_pct_of_income >= 15 ? 'CRITICAL' :
+                           c.fee_pct_of_income >= 10 ? 'HIGH' :
+                           c.fee_pct_of_income >= 5  ? 'MEDIUM' : 'LOW',
+  }))
+}
+
+function mockPlayerBreakdown(corridorId?: string) {
+  const allProviders = MOCK.providers as any[]
+  const providers = corridorId
+    ? allProviders.filter(p => p.corridor_id === corridorId)
+    : allProviders
+
+  const groups: Record<string, any> = {}
+  providers.forEach(p => {
+    const pt = p.player_type ?? 'Other'
+    if (!groups[pt]) groups[pt] = { player_type: pt, providers: [], fees: [], margins: [] }
+    groups[pt].providers.push(p.name)
+    groups[pt].fees.push(p.fee_pct)
+    groups[pt].margins.push(p.fx_margin ?? 1.5)
+  })
+
+  const colors: Record<string,string> = {
+    'Fintech': '#38BDF8', 'Traditional MTO': '#818CF8',
+    'Bank': '#34D399', 'Mobile Money': '#FBBF24',
+  }
+
+  return {
+    breakdown: Object.values(groups).map((g: any) => ({
+      player_type:    g.player_type,
+      count:          g.providers.length,
+      providers:      [...new Set(g.providers)],
+      avg_fee_pct:    +(g.fees.reduce((a:number,b:number)=>a+b,0)/g.fees.length).toFixed(2),
+      avg_fx_margin:  +(g.margins.reduce((a:number,b:number)=>a+b,0)/g.margins.length).toFixed(2),
+      avg_total_cost: +(
+        g.fees.reduce((a:number,b:number)=>a+b,0)/g.fees.length +
+        g.margins.reduce((a:number,b:number)=>a+b,0)/g.margins.length
+      ).toFixed(2),
+      color: colors[g.player_type] ?? '#94A3B8',
+    })),
+    categories: (MOCK as any).player_categories ?? [],
+  }
+}
+
+function mockFXMargin(amount: number, corridorId?: string) {
+  const allProviders = MOCK.providers as any[]
+  const providers = corridorId
+    ? allProviders.filter(p => p.corridor_id === corridorId)
+    : allProviders
+
+  return providers.map(p => {
+    const fx_margin     = p.fx_margin ?? 1.5
+    const advertised    = +(p.fee_pct / 100 * amount + p.fee_flat).toFixed(2)
+    const hidden        = +(fx_margin / 100 * amount).toFixed(2)
+    return {
+      provider:         p.name,
+      player_type:      p.player_type ?? 'Other',
+      advertised_fee:   advertised,
+      hidden_spread:    hidden,
+      true_cost:        +(advertised + hidden).toFixed(2),
+      fx_margin_pct:    fx_margin,
+      transparency:     fx_margin < 0.8 ? 'HIGH' : fx_margin < 2.0 ? 'MEDIUM' : 'LOW',
+      advertised_label: p.advertised_fee_label ?? 'Standard fee',
+      data_type:        'synthetic_fx_margin',
+    }
+  }).sort((a:any,b:any) => a.true_cost - b.true_cost)
+}
+
+function mockVolumeFlow() {
+  const corridors = MOCK.corridors as any[]
+  const total = corridors.reduce((s, c) => s + c.volume_bn_usd, 0)
+  return {
+    flows: corridors
+      .map(c => ({
+        corridor_id:      c.id,
+        corridor_label:   c.label,
+        from_name:        c.from_name,
+        to_name:          c.to_name,
+        volume_bn_usd:    c.volume_bn_usd,
+        volume_share_pct: +(c.volume_bn_usd / total * 100).toFixed(1),
+        avg_cost_pct:     c.avg_cost_pct,
+        trend:            c.trend,
+        formal_bn:        +(c.volume_bn_usd * c.formal).toFixed(2),
+        informal_bn:      +(c.volume_bn_usd * c.informal).toFixed(2),
+      }))
+      .sort((a,b) => b.volume_bn_usd - a.volume_bn_usd),
+    total_bn_usd:    +total.toFixed(1),
+    corridor_count:  corridors.length,
+    data_source:     'World Bank RPW + Synthetic estimates',
+  }
+}
+
+// ── Existing exported API functions ──────────────────────────────────────────
 
 export async function getCorridors(): Promise<{ corridors: Corridor[]; dataSource: string }> {
-  // Backend tries World Bank live first, enriches with GDP data
   const d = await safeFetch<{ corridors: Corridor[]; data_source: string }>(
     `${API}/api/corridors`,
     { corridors: MOCK.corridors as Corridor[], data_source: 'frontend_mock' }
@@ -119,8 +248,6 @@ export async function getGovernance(): Promise<GovernanceData> {
     const res = await fetch(`${API}/api/governance`, { cache: 'no-store' })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
-    // Normalize: backend might return { regulators:[...] } directly
-    // or wrapped as { governance: { regulators:[...] } }
     const gov = data?.governance ?? data
     if (!gov?.regulators) throw new Error('Missing regulators')
     return gov as GovernanceData
@@ -136,7 +263,6 @@ export async function getGovernance(): Promise<GovernanceData> {
 }
 
 export async function getFxRates(): Promise<Record<string, { rate_vs_eur: number; source: string }>> {
-  // Backend calls ECB live API, falls back to mock rates
   const d = await safeFetch<{ rates: Record<string, { rate_vs_eur: number; source: string }> }>(
     `${API}/api/fx-rates`,
     {
@@ -152,4 +278,28 @@ export async function getFxRates(): Promise<Record<string, { rate_vs_eur: number
     }
   )
   return d.rates
+}
+
+// ── NEW exported API functions (v4.0) ─────────────────────────────────────────
+
+export async function getHeatmap() {
+  return safeFetch(`${API}/api/heatmap`, mockHeatmap())
+}
+
+export async function getCostIncomeOverlay() {
+  return safeFetch(`${API}/api/cost-income-overlay`, mockCostIncome())
+}
+
+export async function getPlayerBreakdown(corridorId?: string) {
+  const url = `${API}/api/player-breakdown${corridorId ? `?corridor=${corridorId}` : ''}`
+  return safeFetch(url, mockPlayerBreakdown(corridorId))
+}
+
+export async function getFXMargin(amount: number, corridorId?: string) {
+  const url = `${API}/api/fx-margin?amount=${amount}${corridorId ? `&corridor=${corridorId}` : ''}`
+  return safeFetch(url, mockFXMargin(amount, corridorId))
+}
+
+export async function getVolumeFlow() {
+  return safeFetch(`${API}/api/volume-flow`, mockVolumeFlow())
 }

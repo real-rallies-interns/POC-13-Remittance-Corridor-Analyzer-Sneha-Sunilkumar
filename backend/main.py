@@ -9,14 +9,19 @@
 #   3. If either fails          → AUTO fallback to mock_data.json
 #   4. Unit economics (tx samples) → always synthetic (no public feed)
 #
+# FEATURES:
+#   1. Corridor Heatmap        — heat_intensity per corridor
+#   2. Cost vs Income Overlay  — fee % vs sender income level
+#   3. Player Breakdown        — Fintech vs Traditional MTO vs Bank
+#   4. FX Margin Visualizer    — hidden spread vs advertised fee
+#   5. Volume Flow Tracker     — total corridor volume flow
+#
 # FIXES:
-#   1. remittance_pct_gdp_est now uses actual GDP * population estimate
-#      instead of the nonsensical `gdp * 0.001` denominator.
-#   2. mock_data.json load wrapped in try/except with a clear error message.
-#   3. pandas .agg() named-aggregation syntax made explicit to avoid
-#      DeprecationWarning / breakage across pandas versions.
-#   4. CORS allow_origins accepts a comma-separated list from .env so the
-#      app works in staging without code changes.
+#   1. HAS_GEO properly defined via try/except (Pylance fix)
+#   2. remittance_pct_gdp_est uses correct GDP formula
+#   3. mock_data.json load wrapped in try/except
+#   4. pandas .agg() stable syntax
+#   5. CORS allow_origins from .env
 # ============================================================
 
 from fastapi import FastAPI, Query
@@ -42,9 +47,8 @@ np.random.seed(42)
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("real-rails")
 
-app = FastAPI(title="Real Rails – Remittance Corridor Analyzer", version="3.0.0")
+app = FastAPI(title="Real Rails – Remittance Corridor Analyzer", version="4.0.0")
 
-# FIX: support comma-separated origins in .env so staging/prod don't need code changes
 _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
 _origins = [o.strip() for o in _raw_origins.split(",")]
 
@@ -56,44 +60,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# FIX: wrap mock load in try/except with clear error so missing file gives a
-# useful message instead of a cryptic FileNotFoundError traceback.
 try:
     with open("mock_data.json") as f:
         MOCK = json.load(f)
 except FileNotFoundError:
     raise RuntimeError(
-        "mock_data.json not found. Run the server from the backend/ directory: "
+        "mock_data.json not found. Run from backend/ directory: "
         "cd backend && uvicorn main:app --reload"
     )
 
-MOCK_CORRIDORS = MOCK["corridors"]
-MOCK_PROVIDERS = MOCK["providers"]
+MOCK_CORRIDORS       = MOCK["corridors"]
+MOCK_PROVIDERS       = MOCK["providers"]
+MOCK_PLAYER_CATS     = MOCK.get("player_categories", [])
 
-# ── API base URLs (from .env) ────────────────────────────────────────────────
 WORLD_BANK_API = os.getenv("WORLD_BANK_API", "https://api.worldbank.org/v2")
 ECB_API        = os.getenv("ECB_API",        "https://data-api.ecb.europa.eu/service")
 
 MONTH_ABBR = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 # ════════════════════════════════════════════════════════════
-# LIVE API FETCHERS — each has try/except → mock fallback
+# LIVE API FETCHERS
 # ════════════════════════════════════════════════════════════
 
 async def fetch_worldbank_remittance_costs() -> list:
-    """
-    World Bank Remittance Prices Worldwide (RPW) data.
-    Indicator: BX.TRF.PWKR.DT.GD.ZS (remittances % of GDP)
-    Free public API — no key required.
-    Falls back to mock on any error.
-    """
     country_pairs = [
-    ("US", "MX"), ("US", "IN"), ("GB", "NG"),
-    ("DE", "PH"), ("AE", "PK"), ("US", "PH"),
-    ("AE", "IN"), ("US", "CN"), ("FR", "MA"),
-    ("US", "DO"), ("GB", "IN"), ("CA", "IN"),
-    ("AU", "IN"), ("IT", "RO"), ("ES", "EC"),
-]
+        ("US", "MX"), ("US", "IN"), ("GB", "NG"),
+        ("DE", "PH"), ("AE", "PK"), ("US", "PH"),
+        ("AE", "IN"), ("US", "CN"), ("FR", "MA"),
+        ("US", "DO"), ("GB", "IN"), ("CA", "IN"),
+        ("AU", "IN"), ("IT", "RO"), ("ES", "EC"),
+    ]
     results = []
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -119,17 +115,10 @@ async def fetch_worldbank_remittance_costs() -> list:
     except Exception as e:
         log.warning(f"⚠ World Bank API error: {e} — using mock data")
         return [{"source": "mock_fallback", **c} for c in MOCK_CORRIDORS]
-
     return results if results else [{"source": "mock_fallback", **c} for c in MOCK_CORRIDORS]
 
 
 async def fetch_ecb_exchange_rates() -> dict:
-    """
-    ECB Data Portal — live FX rates for major remittance currencies.
-    Uses ECB Statistical Data Warehouse REST API.
-    Free public API — no key required.
-    Falls back to mock on any error.
-    """
     currency_pairs = ["USD", "GBP", "MXN", "INR", "NGN", "PHP", "PKR", "AED"]
     rates = {}
     try:
@@ -160,15 +149,10 @@ async def fetch_ecb_exchange_rates() -> dict:
             "PKR": {"rate_vs_eur": 298.0, "source": "mock_fallback"},
             "AED": {"rate_vs_eur": 3.92,  "source": "mock_fallback"},
         }
-
     return rates
 
 
 async def fetch_worldbank_gdp_per_capita(country_iso: str) -> Optional[float]:
-    """
-    World Bank GDP per capita for receiving country.
-    Used in intelligence layer: remittance as % of household income.
-    """
     try:
         async with httpx.AsyncClient(timeout=8.0) as client:
             url = f"{WORLD_BANK_API}/country/{country_iso}/indicator/NY.GDP.PCAP.CD?format=json&mrv=1&per_page=1"
@@ -183,15 +167,10 @@ async def fetch_worldbank_gdp_per_capita(country_iso: str) -> Optional[float]:
 
 
 # ════════════════════════════════════════════════════════════
-# SYNTHETIC UNIT ECONOMICS (always mock — no public feed)
+# SYNTHETIC UNIT ECONOMICS
 # ════════════════════════════════════════════════════════════
 
 def build_synthetic_timeline(corridor_id=None):
-    """
-    Unit economics — individual transaction samples.
-    Protocol states: 'use well-labeled synthetic/mock data'
-    because no public event-level feed exists from World Bank / ECB.
-    """
     rows = []
     targets = [c for c in MOCK_CORRIDORS if corridor_id is None or c["id"] == corridor_id]
     for c in targets:
@@ -221,7 +200,7 @@ def build_synthetic_timeline(corridor_id=None):
 
 
 # ════════════════════════════════════════════════════════════
-# GeoDataFrame (GeoPandas — no manual SVG math)
+# GeoDataFrame
 # ════════════════════════════════════════════════════════════
 
 def build_geodataframe():
@@ -242,7 +221,7 @@ CORRIDOR_GDF = build_geodataframe()
 
 
 # ════════════════════════════════════════════════════════════
-# API ROUTES
+# EXISTING API ROUTES
 # ════════════════════════════════════════════════════════════
 
 @app.get("/api/health")
@@ -250,43 +229,42 @@ def health():
     return {
         "status": "ok",
         "project": "Remittance Corridor Analyzer",
+        "version": "4.0.0",
         "id": 13,
-        "archetype": "temporal",
-        "live_apis": ["World Bank RPW", "ECB Data Portal"],
-        "fallback": "mock_data.json",
+        "features": [
+            "corridor-heatmap",
+            "cost-income-overlay",
+            "player-breakdown",
+            "fx-margin-visualizer",
+            "volume-flow-tracker",
+        ],
+        "corridors": len(MOCK_CORRIDORS),
     }
 
 
 @app.get("/api/corridors")
 async def get_corridors():
-    """
-    Corridor metadata.
-    Tries World Bank live data first, falls back to mock.
-    Enriches with live GDP data per receiving country.
-    """
     wb_data = await fetch_worldbank_remittance_costs()
     is_live = wb_data and wb_data[0].get("source") != "mock_fallback"
 
     recv_iso_map = {
         "US-MX": "MX", "US-IN": "IN", "UK-NG": "NG",
         "EU-PH": "PH", "UAE-PK": "PK", "US-PH": "PH",
+        "UAE-IN": "IN", "US-CN": "CN", "FR-MA": "MA",
+        "US-DO": "DO", "UK-IN": "IN", "CA-IN": "IN",
+        "AU-IN": "IN", "IT-RO": "RO", "ES-EC": "EC",
     }
 
     corridors = []
     for c in MOCK_CORRIDORS:
         enriched = dict(c)
-
         iso = recv_iso_map.get(c["id"])
         if iso:
             gdp = await fetch_worldbank_gdp_per_capita(iso)
             if gdp:
                 enriched["recv_gdp_per_capita_usd"] = round(gdp, 2)
-                # FIX: previous formula `c["volume_bn_usd"] / (gdp * 0.001)` was
-                # nonsensical. Corrected to: corridor volume as % of
-                # (GDP per capita × estimated migrant population proxy of 1M).
-                # Still an estimate — labeled clearly.
                 migrant_pop_proxy = 1_000_000
-                recv_gdp_total_est = gdp * migrant_pop_proxy  # rough receiving household GDP pool
+                recv_gdp_total_est = gdp * migrant_pop_proxy
                 enriched["remittance_pct_gdp_est"] = round(
                     (c["volume_bn_usd"] * 1e9) / recv_gdp_total_est * 100, 2
                 )
@@ -295,7 +273,6 @@ async def get_corridors():
                 enriched["recv_gdp_per_capita_usd"] = None
                 enriched["remittance_pct_gdp_est"]  = None
                 enriched["gdp_source"] = "unavailable"
-
         enriched["corridor_data_source"] = "World Bank Live" if is_live else "mock_fallback"
         corridors.append(enriched)
 
@@ -304,10 +281,8 @@ async def get_corridors():
 
 @app.get("/api/corridors/geojson")
 def get_corridors_geojson():
-    """GeoJSON for Mapbox/deck.gl — uses GeoPandas if available, plain dict fallback."""
     if HAS_GEO and CORRIDOR_GDF is not None:
         return json.loads(CORRIDOR_GDF.to_json())
-    # Fallback: manual GeoJSON (no GeoPandas required — guardrail safe)
     features = [{
         "type": "Feature",
         "geometry": {
@@ -324,20 +299,10 @@ def get_timeline(
     corridor: Optional[str] = Query(None),
     channel:  Optional[str] = Query(None),
 ):
-    """
-    Temporal archetype: monthly volume time series.
-    Data type: synthetic unit economics (no public event-level feed).
-    Labeled clearly per protocol.
-
-    FIX: pandas .agg() now uses explicit dict-of-functions form which is
-    stable across pandas 1.x and 2.x (named-tuple form was deprecated).
-    """
     rows = build_synthetic_timeline(corridor)
     df   = pd.DataFrame(rows)
     if channel and channel != "all":
         df = df[df["channel"] == channel]
-
-    # FIX: use stable agg dict syntax
     agg = (
         df.groupby(["year_month", "label", "channel"])
           .agg(
@@ -350,16 +315,12 @@ def get_timeline(
     agg["data_type"] = "synthetic_unit_economics"
     return agg.to_dict(orient="records")
 
+
 @app.get("/api/cost-analysis")
 def get_cost_analysis(
     amount: float = Query(200.0),
     corridor: Optional[str] = Query(None),
 ):
-    """
-    Provider fee breakdown for a given send amount.
-    Intelligence layer: % above/below regional average.
-    Data: synthetic (no public provider fee API exists).
-    """
     providers = MOCK_PROVIDERS
     if corridor:
         filtered = [p for p in MOCK_PROVIDERS if p.get("corridor_id") == corridor]
@@ -381,17 +342,12 @@ def get_cost_analysis(
 
 @app.get("/api/fx-rates")
 async def get_fx_rates():
-    """
-    Live FX rates from ECB Data Portal.
-    Auto-falls back to mock on error.
-    """
     rates = await fetch_ecb_exchange_rates()
     return {"rates": rates, "base_currency": "EUR"}
 
 
 @app.get("/api/informal-vs-formal")
 def get_informal_vs_formal(corridor: Optional[str] = Query(None)):
-    """Formal vs informal channel comparison with hawala risk signal."""
     targets = [c for c in MOCK_CORRIDORS if corridor is None or c["id"] == corridor]
     return [{
         "corridor_id":    c["id"],
@@ -407,13 +363,11 @@ def get_informal_vs_formal(corridor: Optional[str] = Query(None)):
 
 @app.get("/api/governance")
 def get_governance():
-    """Who Controls the Rail — from mock_data.json (static reference data)."""
     return MOCK["governance"]
 
 
 @app.get("/api/download-sample")
 def download_sample():
-    """Download 100-row CSV of synthetic unit economics data."""
     rows = build_synthetic_timeline()
     df   = pd.DataFrame(rows).head(100)
     buf  = io.StringIO()
@@ -424,3 +378,198 @@ def download_sample():
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=remittance_sample_data.csv"},
     )
+
+
+# ════════════════════════════════════════════════════════════
+# NEW FEATURE ENDPOINTS
+# ════════════════════════════════════════════════════════════
+
+# ── 1. CORRIDOR HEATMAP ─────────────────────────────────────
+@app.get("/api/heatmap")
+def get_heatmap():
+    """
+    Corridor Heatmap data.
+    Returns heat_intensity (0-1) and volume for colour coding map arcs.
+    Higher intensity = more volume = warmer colour on map.
+    """
+    return [{
+        "corridor_id":        c["id"],
+        "corridor_label":     c["label"],
+        "from_name":          c["from_name"],
+        "to_name":            c["to_name"],
+        "from_lat":           c["from_lat"],
+        "from_lng":           c["from_lng"],
+        "to_lat":             c["to_lat"],
+        "to_lng":             c["to_lng"],
+        "volume_bn_usd":      c["volume_bn_usd"],
+        "heat_intensity":     c.get("heat_intensity", 0.5),
+        "avg_cost_pct":       c["avg_cost_pct"],
+        "heat_color":         _heat_color(c.get("heat_intensity", 0.5)),
+    } for c in MOCK_CORRIDORS]
+
+
+def _heat_color(intensity: float) -> str:
+    """Map intensity 0-1 to colour: low=indigo, mid=cyan, high=amber/red."""
+    if intensity >= 0.8:  return "#F87171"  # red   — very high volume
+    if intensity >= 0.6:  return "#FBBF24"  # amber — high volume
+    if intensity >= 0.4:  return "#38BDF8"  # cyan  — medium volume
+    return "#818CF8"                         # indigo — low volume
+
+
+# ── 2. COST VS INCOME OVERLAY ───────────────────────────────
+@app.get("/api/cost-income-overlay")
+def get_cost_income_overlay():
+    """
+    Cost vs Income Overlay.
+    Shows remittance fee % vs sender average income level.
+    Reveals which corridors are most burdensome relative to sender income.
+    Data: synthetic income estimates + World Bank cost data.
+    """
+    return [{
+        "corridor_id":            c["id"],
+        "corridor_label":         c["label"],
+        "avg_cost_pct":           c["avg_cost_pct"],
+        "sender_avg_income_usd":  c.get("sender_avg_income_usd", 35000),
+        "fee_pct_of_income":      c.get("fee_pct_of_income", 10.0),
+        "g20_compliant":          c["avg_cost_pct"] <= 5,
+        "income_bracket":         _income_bracket(c.get("sender_avg_income_usd", 35000)),
+        "burden_level":           _burden_level(c.get("fee_pct_of_income", 10.0)),
+    } for c in MOCK_CORRIDORS]
+
+
+def _income_bracket(income: float) -> str:
+    if income >= 50000: return "High Income"
+    if income >= 35000: return "Middle Income"
+    return "Lower Income"
+
+
+def _burden_level(fee_pct_of_income: float) -> str:
+    if fee_pct_of_income >= 15: return "CRITICAL"
+    if fee_pct_of_income >= 10: return "HIGH"
+    if fee_pct_of_income >= 5:  return "MEDIUM"
+    return "LOW"
+
+
+# ── 3. PLAYER BREAKDOWN ─────────────────────────────────────
+@app.get("/api/player-breakdown")
+def get_player_breakdown(corridor: Optional[str] = Query(None)):
+    """
+    Player Breakdown — Western Union, banks, fintechs.
+    Groups providers by player_type and shows market share + avg cost.
+    """
+    providers = MOCK_PROVIDERS
+    if corridor:
+        filtered = [p for p in MOCK_PROVIDERS if p.get("corridor_id") == corridor]
+        if filtered:
+            providers = filtered
+
+    # Group by player_type
+    groups: dict = {}
+    for p in providers:
+        pt = p.get("player_type", "Other")
+        if pt not in groups:
+            groups[pt] = {"player_type": pt, "providers": [], "avg_fee_pct": 0, "avg_fx_margin": 0, "count": 0}
+        groups[pt]["providers"].append(p["name"])
+        groups[pt]["count"] += 1
+
+    result = []
+    for pt, g in groups.items():
+        pt_providers = [p for p in providers if p.get("player_type") == pt]
+        avg_fee = sum(p["fee_pct"] for p in pt_providers) / len(pt_providers)
+        avg_fx  = sum(p.get("fx_margin", 1.5) for p in pt_providers) / len(pt_providers)
+        avg_total = round(avg_fee + avg_fx, 2)
+        result.append({
+            "player_type":     pt,
+            "count":           g["count"],
+            "providers":       list(set(g["providers"])),
+            "avg_fee_pct":     round(avg_fee, 2),
+            "avg_fx_margin":   round(avg_fx, 2),
+            "avg_total_cost":  avg_total,
+            "color":           _player_color(pt),
+        })
+
+    # Add categories info
+    return {
+        "breakdown": sorted(result, key=lambda x: x["avg_total_cost"]),
+        "categories": MOCK_PLAYER_CATS,
+    }
+
+
+def _player_color(player_type: str) -> str:
+    colors = {
+        "Fintech":         "#38BDF8",
+        "Traditional MTO": "#818CF8",
+        "Bank":            "#34D399",
+        "Mobile Money":    "#FBBF24",
+    }
+    return colors.get(player_type, "#94A3B8")
+
+
+# ── 4. FX MARGIN VISUALIZER ─────────────────────────────────
+@app.get("/api/fx-margin")
+def get_fx_margin(
+    corridor: Optional[str] = Query(None),
+    amount:   float          = Query(200.0),
+):
+    """
+    FX Margin Visualizer — hidden spread vs advertised fee.
+    Shows true cost = advertised flat fee + hidden FX margin.
+    Data: synthetic (no public provider FX margin feed exists).
+    Labeled clearly per protocol.
+    """
+    providers = MOCK_PROVIDERS
+    if corridor:
+        filtered = [p for p in MOCK_PROVIDERS if p.get("corridor_id") == corridor]
+        if filtered:
+            providers = filtered
+
+    result = []
+    for p in providers:
+        fx_margin      = p.get("fx_margin", 1.5)
+        advertised_fee = round(p["fee_pct"] / 100 * amount + p["fee_flat"], 2)
+        hidden_spread  = round(fx_margin / 100 * amount, 2)
+        true_cost      = round(advertised_fee + hidden_spread, 2)
+        result.append({
+            "provider":         p["name"],
+            "player_type":      p.get("player_type", "Other"),
+            "advertised_fee":   advertised_fee,
+            "hidden_spread":    hidden_spread,
+            "true_cost":        true_cost,
+            "fx_margin_pct":    fx_margin,
+            "transparency":     "HIGH" if fx_margin < 0.8 else "MEDIUM" if fx_margin < 2.0 else "LOW",
+            "advertised_label": p.get("advertised_fee_label", "Standard fee"),
+            "data_type":        "synthetic_fx_margin",
+        })
+
+    return sorted(result, key=lambda x: x["true_cost"])
+
+
+# ── 5. VOLUME FLOW TRACKER ──────────────────────────────────
+@app.get("/api/volume-flow")
+def get_volume_flow():
+    """
+    Volume Flow Tracker — total corridor volume ranked.
+    Shows all corridors sorted by volume with flow share %.
+    """
+    total = sum(c["volume_bn_usd"] for c in MOCK_CORRIDORS)
+    result = []
+    for c in MOCK_CORRIDORS:
+        result.append({
+            "corridor_id":    c["id"],
+            "corridor_label": c["label"],
+            "from_name":      c["from_name"],
+            "to_name":        c["to_name"],
+            "volume_bn_usd":  c["volume_bn_usd"],
+            "volume_share_pct": round(c["volume_bn_usd"] / total * 100, 1),
+            "avg_cost_pct":   c["avg_cost_pct"],
+            "trend":          c["trend"],
+            "formal_bn":      round(c["volume_bn_usd"] * c["formal"], 2),
+            "informal_bn":    round(c["volume_bn_usd"] * c["informal"], 2),
+        })
+
+    return {
+        "flows":       sorted(result, key=lambda x: x["volume_bn_usd"], reverse=True),
+        "total_bn_usd": round(total, 1),
+        "corridor_count": len(MOCK_CORRIDORS),
+        "data_source":  "World Bank RPW + Synthetic estimates",
+    }
