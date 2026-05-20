@@ -4,13 +4,6 @@
  * Real Rails · Remittance Corridor Analyzer · ID 13
  * Temporal Archetype · Payment Rail
  * Layout: 70% Main Stage + 30% Intelligence Sidebar
- *
- * v4.0 — New Features:
- *   1. Corridor Heatmap     — arcs colour-coded by volume intensity
- *   2. Cost vs Income       — scatter chart in main stage
- *   3. Player Breakdown     — in sidebar Players tab
- *   4. FX Margin Visualizer — in sidebar FX Margin tab
- *   5. Volume Flow Tracker  — in sidebar Volume tab
  */
 
 import { useState, useEffect } from 'react'
@@ -31,18 +24,21 @@ const CorridorMap = dynamic(() => import('@/components/CorridorMap'), {
   ),
 })
 
-const CostIncomeChart = dynamic(() => import('@/components/CostIncomeChart'), { ssr: false })
+const CostIncomeChart       = dynamic(() => import('@/components/CostIncomeChart'),       { ssr: false })
+const CorridorHeatmapMatrix = dynamic(() => import('@/components/CorridorHeatmapMatrix'), { ssr: false })
+
+type MainTab = 'map' | 'matrix' | 'costincome' | 'volume'
 
 export default function Dashboard() {
-  const [corridors,    setCorridors]    = useState<Corridor[]>(MOCK.corridors as Corridor[])
-  const [selectedId,   setSelectedId]   = useState('US-MX')
-  const [channel,      setChannel]      = useState<'all' | 'formal' | 'informal'>('all')
-  const [amount,       setAmount]       = useState(200)
-  const [dataSource,   setDataSource]   = useState<string>('frontend_mock')
-  const [heatmapData,  setHeatmapData]  = useState<any[]>([])
-  const [costIncome,   setCostIncome]   = useState<any[]>([])
-  const [volumeFlow,   setVolumeFlow]   = useState<any>(null)
-  const [mainTab,      setMainTab]      = useState<'map' | 'costincome' | 'volume'>('map')
+  const [corridors,   setCorridors]   = useState<Corridor[]>(MOCK.corridors as Corridor[])
+  const [selectedId,  setSelectedId]  = useState('US-MX')
+  const [channel,     setChannel]     = useState<'all' | 'formal' | 'informal'>('all')
+  const [amount,      setAmount]      = useState(200)
+  const [dataSource,  setDataSource]  = useState<string>('frontend_mock')
+  const [heatmapData, setHeatmapData] = useState<any[]>([])
+  const [costIncome,  setCostIncome]  = useState<any[]>([])
+  const [volumeFlow,  setVolumeFlow]  = useState<any>(null)
+  const [mainTab,     setMainTab]     = useState<MainTab>('map')
 
   useEffect(() => {
     getCorridors().then(({ corridors: data, dataSource: src }) => {
@@ -58,8 +54,6 @@ export default function Dashboard() {
   const totalVolume = corridors.reduce((s, c) => s + c.volume_bn_usd, 0).toFixed(0)
   const highRisk    = corridors.filter(c => c.avg_cost_pct > 5).length
   const isLive      = dataSource === 'World Bank Live'
-
-  // Get heatmap colour for selected corridor
   const heatEntry   = heatmapData.find(h => h.corridor_id === selectedId)
   const heatColor   = heatEntry?.heat_color ?? '#38BDF8'
 
@@ -114,7 +108,7 @@ export default function Dashboard() {
               color: isLive ? '#34D399' : '#F59E0B',
             }}>
             {isLive ? <Radio className="w-3 h-3" /> : <CloudOff className="w-3 h-3" />}
-            <span>{isLive ? 'World Bank · ECB Live' : 'Mock Data Active'}</span>
+            <span className="ml-1">{isLive ? 'World Bank · ECB Live' : 'Mock Data Active'}</span>
           </div>
         </div>
       </header>
@@ -154,10 +148,11 @@ export default function Dashboard() {
         style={{ background: 'rgba(11,17,23,0.5)' }}>
         <span className="text-[9px] font-mono text-rr-muted uppercase tracking-widest mr-2">View</span>
         {([
-          { key: 'map',       label: '🗺️ Corridor Heatmap'      },
-          { key: 'costincome',label: '📊 Cost vs Income'         },
-          { key: 'volume',    label: '🌊 Volume Flow Tracker'    },
-        ] as const).map(t => (
+          { key: 'map'        as MainTab, label: '🗺️ Corridor Heatmap'   },
+          { key: 'matrix'     as MainTab, label: '🔥 Intelligence Matrix' },
+          { key: 'costincome' as MainTab, label: '📊 Cost vs Income'      },
+          { key: 'volume'     as MainTab, label: '🌊 Volume Flow Tracker' },
+        ]).map(t => (
           <button key={t.key} onClick={() => setMainTab(t.key)}
             className={`px-3 py-1 rounded text-[10px] font-medium transition-all duration-150 ${
               mainTab === t.key
@@ -175,15 +170,13 @@ export default function Dashboard() {
         {/* ── LEFT: Main Stage 70% ── */}
         <main className="flex flex-col gap-3" style={{ width: '70%' }}>
 
-          {/* ── MAP VIEW (Corridor Heatmap) ── */}
-          {mainTab === 'map' && (
-            <div className="glass flex-1 overflow-hidden relative min-h-0">
+          {/* MAP VIEW — always mounted to preserve corridor lines */}
+          <div className={`glass overflow-hidden relative min-h-0 ${mainTab === 'map' ? 'flex-1' : 'hidden'}`}>
               <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] text-rr-muted font-mono"
                 style={{ background: 'rgba(3,7,18,0.9)', border: '1px solid #1F2937', backdropFilter: 'blur(4px)' }}>
                 <Globe className="w-3 h-3 text-rr-cyan" />
                 CORRIDOR HEATMAP · VOLUME INTENSITY
               </div>
-
               {/* Heatmap legend */}
               <div className="absolute top-2 right-2 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded text-[9px] font-mono"
                 style={{ background: 'rgba(3,7,18,0.9)', border: '1px solid #1F2937' }}>
@@ -200,7 +193,6 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-
               <div className="absolute bottom-2 right-2 z-10 px-2 py-1 rounded text-[9px] text-rr-muted font-mono"
                 style={{ background: 'rgba(3,7,18,0.8)', border: '1px solid #1F2937' }}>
                 Sources: World Bank · ECB Data Portal · Synthetic Mock
@@ -212,9 +204,19 @@ export default function Dashboard() {
                 heatmapData={heatmapData}
               />
             </div>
+
+          {/* INTELLIGENCE MATRIX VIEW */}
+          {mainTab === 'matrix' && (
+            <div className="glass flex-1 overflow-hidden relative min-h-0 p-4">
+              <CorridorHeatmapMatrix
+                corridors={corridors}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+              />
+            </div>
           )}
 
-          {/* ── COST vs INCOME VIEW ── */}
+          {/* COST vs INCOME VIEW */}
           {mainTab === 'costincome' && (
             <div className="glass flex-1 overflow-hidden relative min-h-0 p-4">
               <div className="mb-3">
@@ -222,7 +224,7 @@ export default function Dashboard() {
                   Cost vs Income Overlay
                 </p>
                 <p className="text-rr-text text-xs">
-                  Remittance fee % vs sender income — reveals which corridors burden senders most
+                  Remittance fee % vs sender income — reveals burden per corridor
                 </p>
               </div>
               <div style={{ height: 'calc(100% - 60px)' }}>
@@ -231,68 +233,70 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ── VOLUME FLOW TRACKER ── */}
-          {mainTab === 'volume' && (
-            <div className="glass flex-1 overflow-hidden relative min-h-0 p-4">
-              <div className="mb-3 flex justify-between items-start">
+          {/* VOLUME FLOW VIEW */}
+          {mainTab === 'volume' && volumeFlow && (
+            <div className="glass flex-1 overflow-auto relative min-h-0 p-4">
+              <div className="flex justify-between items-start mb-4">
                 <div>
                   <p className="text-[10px] font-mono text-rr-muted uppercase tracking-widest mb-0.5">
                     Volume Flow Tracker
                   </p>
                   <p className="text-rr-text text-xs">
-                    Total corridor volume ranked — {volumeFlow?.corridor_count ?? 15} corridors tracked
+                    {volumeFlow.corridor_count} corridors · {volumeFlow.data_source}
                   </p>
                 </div>
-                {volumeFlow && (
-                  <div className="text-right">
-                    <p className="text-rr-cyan font-mono font-bold text-lg">${volumeFlow.total_bn_usd}B</p>
-                    <p className="text-[9px] text-rr-muted">Total tracked volume</p>
-                  </div>
-                )}
+                <div className="text-right">
+                  <p className="text-rr-cyan font-mono font-bold text-lg">${volumeFlow.total_bn_usd}B</p>
+                  <p className="text-[9px] text-rr-muted">Total tracked volume</p>
+                </div>
               </div>
-              {volumeFlow && (
-                <div className="overflow-y-auto" style={{ height: 'calc(100% - 70px)' }}>
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="text-[9px] text-rr-muted uppercase border-b border-rr-border">
-                        <th className="text-left py-1.5 font-mono">Corridor</th>
-                        <th className="text-right py-1.5 font-mono">Volume</th>
-                        <th className="text-right py-1.5 font-mono">Share</th>
-                        <th className="text-right py-1.5 font-mono">Cost %</th>
-                        <th className="text-right py-1.5 font-mono">Trend</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {volumeFlow.flows.map((f: any, i: number) => (
-                        <tr
-                          key={f.corridor_id}
-                          onClick={() => setSelectedId(f.corridor_id)}
-                          className={`border-b border-rr-border cursor-pointer transition-colors ${
-                            selectedId === f.corridor_id ? 'bg-rr-surface' : 'hover:bg-rr-surface'
-                          }`}>
-                          <td className="py-1.5 text-rr-text font-medium">
-                            <span className="text-rr-muted font-mono mr-2">{i+1}</span>
-                            {f.corridor_label}
-                          </td>
-                          <td className="py-1.5 text-right font-mono text-rr-cyan">${f.volume_bn_usd}B</td>
-                          <td className="py-1.5 text-right font-mono text-rr-muted">{f.volume_share_pct}%</td>
-                          <td className={`py-1.5 text-right font-mono ${f.avg_cost_pct > 5 ? 'text-rr-amber' : 'text-rr-green'}`}>
-                            {f.avg_cost_pct}%
-                          </td>
-                          <td className={`py-1.5 text-right font-mono ${
-                            f.trend === 'up' ? 'text-rr-green' : f.trend === 'down' ? 'text-rr-amber' : 'text-rr-muted'
-                          }`}>
-                            {f.trend === 'up' ? '↑' : f.trend === 'down' ? '↓' : '→'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <p className="text-[9px] text-rr-muted mt-2 text-center">
-                    {volumeFlow.data_source} · Click row to select corridor
-                  </p>
-                </div>
-              )}
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-[9px] text-rr-muted uppercase font-mono border-b border-rr-border">
+                    <th className="text-left py-1.5">#</th>
+                    <th className="text-left py-1.5">Corridor</th>
+                    <th className="text-right py-1.5">Volume</th>
+                    <th className="text-right py-1.5">Share</th>
+                    <th className="text-right py-1.5">Cost %</th>
+                    <th className="text-right py-1.5">Formal</th>
+                    <th className="text-right py-1.5">Informal</th>
+                    <th className="text-right py-1.5">Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {volumeFlow.flows.map((f: any, i: number) => (
+                    <tr key={f.corridor_id}
+                      onClick={() => setSelectedId(f.corridor_id)}
+                      className="border-b border-rr-border cursor-pointer hover:bg-rr-surface transition-colors"
+                      style={{ background: selectedId === f.corridor_id ? 'rgba(56,189,248,0.06)' : undefined }}>
+                      <td className="py-1.5 text-rr-muted font-mono">{i+1}</td>
+                      <td className="py-1.5 font-medium"
+                        style={{ color: selectedId === f.corridor_id ? '#38BDF8' : '#E2E8F0' }}>
+                        {f.corridor_label}
+                      </td>
+                      <td className="py-1.5 text-right font-mono text-rr-cyan">${f.volume_bn_usd}B</td>
+                      <td className="py-1.5 text-right font-mono text-rr-muted">{f.volume_share_pct}%</td>
+                      <td className={`py-1.5 text-right font-mono ${f.avg_cost_pct > 5 ? 'text-rr-amber' : 'text-rr-green'}`}>
+                        {f.avg_cost_pct}%
+                      </td>
+                      <td className="py-1.5 text-right font-mono text-rr-green">
+                        {Math.round(f.formal_bn / f.volume_bn_usd * 100)}%
+                      </td>
+                      <td className="py-1.5 text-right font-mono text-rr-amber">
+                        {Math.round(f.informal_bn / f.volume_bn_usd * 100)}%
+                      </td>
+                      <td className={`py-1.5 text-right font-mono ${
+                        f.trend === 'up' ? 'text-rr-green' : f.trend === 'down' ? 'text-rr-amber' : 'text-rr-muted'
+                      }`}>
+                        {f.trend === 'up' ? '↑' : f.trend === 'down' ? '↓' : '→'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="text-[9px] text-rr-muted mt-2 text-center">
+                {volumeFlow.data_source} · Click row to select corridor
+              </p>
             </div>
           )}
 
@@ -340,13 +344,6 @@ export default function Dashboard() {
               <div className="shrink-0">
                 <p className="text-[9px] text-rr-muted">Top Provider</p>
                 <p className="text-rr-indigo font-medium text-xs">{active.primary_provider}</p>
-              </div>
-              <div className="h-6 w-px bg-rr-border shrink-0" />
-              <div className="shrink-0">
-                <p className="text-[9px] text-rr-muted">Heat Intensity</p>
-                <p className="font-mono text-xs font-semibold" style={{ color: heatColor }}>
-                  {heatEntry ? `${Math.round(heatEntry.heat_intensity * 100)}%` : 'N/A'}
-                </p>
               </div>
               <div className="h-6 w-px bg-rr-border shrink-0" />
               <div className="shrink-0">
