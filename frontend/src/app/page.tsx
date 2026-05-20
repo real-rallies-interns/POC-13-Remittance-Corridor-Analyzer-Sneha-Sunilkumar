@@ -148,8 +148,8 @@ export default function Dashboard() {
         style={{ background: 'rgba(11,17,23,0.5)' }}>
         <span className="text-[9px] font-mono text-rr-muted uppercase tracking-widest mr-2">View</span>
         {([
-          { key: 'map'        as MainTab, label: '🗺️ Corridor Heatmap'   },
-          { key: 'matrix'     as MainTab, label: '🔥 Intelligence Matrix' },
+          { key: 'map'        as MainTab, label: '🗺️ Corridor Routes'    },
+          { key: 'matrix'     as MainTab, label: '🔥 Corridor Heatmap'   },
           { key: 'costincome' as MainTab, label: '📊 Cost vs Income'      },
           { key: 'volume'     as MainTab, label: '🌊 Volume Flow Tracker' },
         ]).map(t => (
@@ -175,12 +175,12 @@ export default function Dashboard() {
               <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] text-rr-muted font-mono"
                 style={{ background: 'rgba(3,7,18,0.9)', border: '1px solid #1F2937', backdropFilter: 'blur(4px)' }}>
                 <Globe className="w-3 h-3 text-rr-cyan" />
-                CORRIDOR HEATMAP · VOLUME INTENSITY
+                CORRIDOR ROUTES · VOLUME INTENSITY
               </div>
               {/* Heatmap legend */}
               <div className="absolute top-2 right-2 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded text-[9px] font-mono"
                 style={{ background: 'rgba(3,7,18,0.9)', border: '1px solid #1F2937' }}>
-                <span className="text-rr-muted">Volume:</span>
+                <span className="text-rr-muted">Route Intensity:</span>
                 {[
                   { color: '#F87171', label: 'Very High' },
                   { color: '#FBBF24', label: 'High'      },
@@ -205,7 +205,7 @@ export default function Dashboard() {
               />
             </div>
 
-          {/* INTELLIGENCE MATRIX VIEW */}
+          {/* CORRIDOR HEATMAP VIEW — Seaborn style matrix */}
           {mainTab === 'matrix' && (
             <div className="glass flex-1 overflow-hidden relative min-h-0 p-4">
               <CorridorHeatmapMatrix
